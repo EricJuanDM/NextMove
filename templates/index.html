@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Move | Batalha de Dança</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">NEXT<span>MOVE</span></div>
+            <ul class="nav-links">
+                <li><a href="#sobre">O Evento</a></li>
+                <li><a href="#cronograma">Cronograma</a></li>
+                <li><a href="{{ url_for('login') }}" class="btn-outline">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="hero">
+        <div class="hero-content">
+            <h1>O Palco é Seu.<br>Mostre sua <span>Dança</span>.</h1>
+            <p>Apresentações épicas, batalhas insanas e o público no controle. Prepare-se para um evento de dança do incrivel.</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('ingressos') }}" class="btn-primary">Garantir Ingresso</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="sobre">
+        <h2>O que vai rolar?</h2>
+        <div class="cards-container">
+            <div class="card">
+                <h3>Apresentações</h3>
+                <p>Aulas montadas pelo grupo e convidados especiais para abrir o evento com a energia lá no alto.</p>
+            </div>
+            <div class="card">
+                <h3>Batalhas 1v1</h3>
+                <p>A pista esquenta com batalhas de freestyle. A regra é clara: quem dominar o beat, avança.</p>
+            </div>
+            <div class="card">
+                <h3>Você Decide</h3>
+                <p>O público tem voz ativa! Faça login no sistema e vote no seu dançarino favorito durante as batalhas.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Grupo Next Move. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>

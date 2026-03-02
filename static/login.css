@@ -1,0 +1,88 @@
+/* login.css - Estilos exclusivos da página de login */
+
+.login-page {
+    background: linear-gradient(rgba(18, 18, 18, 0.9), rgba(18, 18, 18, 0.9)), url('https://source.unsplash.com/random/1920x1080/?urban,neon') center/cover;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#login-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin-top: 60px;
+}
+
+.login-box {
+    background-color: var(--dark-grey);
+    padding: 40px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+    border-top: 4px solid var(--primary-color);
+}
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.login-box p {
+    text-align: center;
+    color: #aaa;
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #333;
+    background-color: #121212;
+    color: #fff;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+    border-color: var(--primary-color);
+}
+
+.btn-block {
+    width: 100%;
+    margin-top: 10px;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+}
+
+.register-link {
+    margin-top: 25px !important;
+}
+
+.register-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}

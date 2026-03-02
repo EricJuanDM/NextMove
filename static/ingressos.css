@@ -1,0 +1,101 @@
+/* ingressos.css - Estilos exclusivos da página de ingressos */
+
+.tickets-page {
+    background-color: #121212;
+    padding-top: 100px; /* Compensa o header fixo */
+    min-height: 100vh;
+}
+
+#tickets-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.ticket-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.ticket-header h2 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+.ticket-header p {
+    color: #aaa;
+    font-size: 1.1rem;
+}
+
+.tickets-grid {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.ticket-card {
+    background-color: var(--dark-grey);
+    border-radius: 12px;
+    padding: 40px 30px;
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+    border: 1px solid #333;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.ticket-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(68, 255, 51, 0.2);
+}
+
+.ticket-card.vip {
+    border-color: var(--primary-color);
+    position: relative;
+}
+
+.ticket-card.vip::before {
+    content: "ESGOTANDO";
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.ticket-type {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.ticket-price {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 25px;
+}
+
+.ticket-price span {
+    font-size: 1.5rem;
+}
+
+.ticket-features {
+    list-style: none;
+    margin-bottom: 30px;
+    text-align: left;
+    color: #ccc;
+}
+
+.ticket-features li {
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}

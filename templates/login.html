@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Next Move</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body class="login-page">
+    <header>
+        <nav>
+            <div class="logo"><a href="{{ url_for('home') }}" style="text-decoration: none; color: inherit;">NEXT<span>MOVE</span></a></div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Voltar para Home</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="login-container">
+        <div class="login-box">
+            <h2>Entrar na Roda</h2>
+            <p>Faça login.</p>
+            
+            <form action="#" method="POST">
+                <div class="input-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="Seu e-mail" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Sua senha " required>
+                </div>
+                
+                <button type="submit" class="btn-primary btn-block">Entrar</button>
+            </form>
+            
+            <p class="register-link">Ainda não tem conta? <a href="#">Cadastre-se aqui</a></p>
+        </div>
+    </section>
+</body>
+</html>
