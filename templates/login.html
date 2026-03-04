@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Next Move</title>
+    <title>Acesso | Next Move</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 </head>
@@ -18,26 +18,61 @@
     </header>
 
     <section id="login-container">
-        <div class="login-box">
+        
+        <div class="login-box" id="box-login">
             <h2>Entrar na Roda</h2>
             <p>Faça login.</p>
             
-            <form action="#" method="POST">
+            <form action="{{ url_for('login') }}" method="POST">
                 <div class="input-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" placeholder="Seu e-mail" required>
+                    <label for="email_login">E-mail</label>
+                    <input type="email" id="email_login" name="email" placeholder="ericjuandm@gmail.com" required>
                 </div>
                 
                 <div class="input-group">
-                    <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha" placeholder="Sua senha " required>
+                    <label for="senha_login">Senha</label>
+                    <input type="password" id="senha_login" name="senha" placeholder="Sua senha" required>
                 </div>
                 
-                <button type="submit" class="btn-primary btn-block">Entrar</button>
+                <button type="submit" class="btn-primary btn-block" style="background-color: #2dfa45; color: white; font-weight: bold;">Entrar</button>
             </form>
             
-            <p class="register-link">Ainda não tem conta? <a href="#">Cadastre-se aqui</a></p>
+            <p class="register-link">Ainda não tem conta? <a href="#" onclick="mostrarCadastro(); return false;">Cadastre-se aqui</a></p>
         </div>
+
+        <div class="login-box" id="box-cadastro" style="display: none;">
+            <h2>Crie sua conta</h2>
+            <p>É rápido e fácil.</p>
+            
+            <form action="{{ url_for('cadastro') }}" method="POST">
+                <div class="input-group">
+                    <label for="email_cad">E-mail</label>
+                    <input type="email" id="email_cad" name="email" placeholder="ericjuandm@gmail.com" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="senha_cad">Senha</label>
+                    <input type="password" id="senha_cad" name="senha" placeholder="Sua senha" required>
+                </div>
+                
+                <button type="submit" class="btn-primary btn-block" style="background-color: #2dfa45; color: white; font-weight: bold;">Criar Conta</button>
+            </form>
+            
+            <p class="register-link"><a href="#" onclick="mostrarLogin(); return false;">Voltar para o Login</a></p>
+        </div>
+
     </section>
+
+    <script>
+        function mostrarCadastro() {
+            document.getElementById('box-login').style.display = 'none';
+            document.getElementById('box-cadastro').style.display = 'block';
+        }
+
+        function mostrarLogin() {
+            document.getElementById('box-cadastro').style.display = 'none';
+            document.getElementById('box-login').style.display = 'block';
+        }
+    </script>
 </body>
 </html>

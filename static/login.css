@@ -86,3 +86,14 @@
 .register-link a:hover {
     text-decoration: underline;
 }
+/* Responsividade do Login */
+@media (max-width: 768px) {
+    #login-container {
+        margin-top: 120px; /* Empurra a caixa mais para baixo no celular */
+        padding: 15px;
+    }
+    
+    .login-box {
+        padding: 30px 20px;
+    }
+}

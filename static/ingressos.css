@@ -99,3 +99,17 @@
     margin-bottom: 10px;
     font-size: 0.95rem;
 }
+/* Responsividade dos Ingressos */
+@media (max-width: 768px) {
+    .tickets-page {
+        padding-top: 140px; /* Compensa o menu maior */
+    }
+    
+    #tickets-container {
+        padding: 20px 15px;
+    }
+    
+    .ticket-header h2 {
+        font-size: 2rem;
+    }
+}

@@ -9,11 +9,24 @@
 <body>
     <header>
         <nav>
-            <div class="logo">NEXT<span>MOVE</span></div>
+            <div class="logo"><a href="{{ url_for('home') }}" style="text-decoration: none; color: inherit;">NEXT<span>MOVE</span></a></div>
+            
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
             <ul class="nav-links">
                 <li><a href="#sobre">O Evento</a></li>
                 <li><a href="#cronograma">Cronograma</a></li>
-                <li><a href="{{ url_for('login') }}" class="btn-outline">Login</a></li>
+                
+                {% if 'usuario' in session %}
+                    <li><div class="user-avatar">{{ session['usuario'][0] | upper }}</div></li>
+                    <li><a href="{{ url_for('logout') }}" style="font-size: 0.8rem; color: #aaa;">Sair</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn-outline">Login</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>
@@ -49,5 +62,13 @@
     <footer>
         <p>&copy; 2026 Grupo Next Move. Todos os direitos reservados.</p>
     </footer>
+    <script>
+        const menuToggle = document.querySelector('#mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
