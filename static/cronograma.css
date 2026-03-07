@@ -1,0 +1,35 @@
+.schedule-section {
+    padding: 100px 5% 50px; 
+    background-color: #1a1a1a;
+    text-align: center;
+}
+
+.schedule-section h2 { font-size: 2.5rem; margin-bottom: 10px; }
+.schedule-section p { color: #ccc; margin-bottom: 50px; }
+
+.timeline {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    border-left: 3px solid #333;
+    padding-left: 30px;
+}
+
+.timeline-item { position: relative; margin-bottom: 40px; }
+.timeline-item:last-child { margin-bottom: 0; }
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -39px;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    background-color: #2dfa45;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(45, 250, 69, 0.8);
+}
+
+.time { color: #2dfa45; font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
+.content h3 { font-size: 1.5rem; margin-bottom: 5px; }
+.content p { color: #aaa; margin-bottom: 0; }

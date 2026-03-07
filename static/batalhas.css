@@ -1,0 +1,127 @@
+/* ========================================== */
+/* ARENA DE BATALHAS                          */
+/* ========================================== */
+.batalhas-section {
+    padding: 120px 5% 80px;
+    text-align: center;
+    background-color: #121212;
+    min-height: 100vh;
+}
+
+.batalhas-header h2 {
+    font-size: 2.8rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.batalhas-header p {
+    color: #2dfa45;
+    margin-bottom: 50px;
+    font-weight: bold;
+}
+
+.arena-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+/* O Card da Batalha (Estilo ringue) */
+.battle-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 15px;
+    padding: 30px;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efeito de iluminação no card */
+.battle-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(45,250,69,0.05) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.fighter {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+
+.fighter h3 {
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.vs-badge {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #121212;
+    background-color: #2dfa45;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #2dfa45;
+    z-index: 2;
+    margin: 0 20px;
+}
+
+/* Botão de Votar */
+.btn-voto {
+    background-color: transparent;
+    color: #2dfa45;
+    border: 2px solid #2dfa45;
+    padding: 10px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.btn-voto:hover {
+    background-color: #2dfa45;
+    color: #121212;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(45, 250, 69, 0.5);
+}
+
+/* Responsividade para Celular */
+@media (max-width: 768px) {
+    .battle-card {
+        flex-direction: column;
+        padding: 40px 20px;
+        gap: 30px;
+    }
+    
+    .vs-badge {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+}

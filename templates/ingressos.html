@@ -7,45 +7,82 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ingressos.css') }}">
 </head>
-<body class="tickets-page">
+<body>
     <header>
         <nav>
             <div class="logo"><a href="{{ url_for('home') }}" style="text-decoration: none; color: inherit;">NEXT<span>MOVE</span></a></div>
+            
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
             <ul class="nav-links">
-                <li><a href="{{ url_for('home') }}">Voltar para Home</a></li>
+                <li><a href="{{ url_for('home') }}">O Evento</a></li>
+                <li><a href="{{ url_for('cronograma') }}">Cronograma</a></li>
+                
+                {% if 'usuario' in session %}
+                    <li><div class="user-avatar">{{ session['usuario'][0] | upper }}</div></li>
+                    <li><a href="{{ url_for('logout') }}" style="font-size: 0.8rem; color: #aaa;">Sair</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn-outline">Login</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>
 
-    <section id="tickets-container">
+    <section class="tickets-page">
         <div class="ticket-header">
-            <h2>Garanta seu Lugar</h2>
-            <p>Escolha seu ingresso e finalize a compra direto pelo WhatsApp.</p>
+            <h2>Garanta seu lugar</h2>
+            <p>Escolha a melhor opção para você curtir o evento, seja aprendendo, assistindo ou batalhando!</p>
         </div>
 
-        <div class="tickets-grid">
+        <div class="tickets-container">
             <div class="ticket-card">
-                <div class="ticket-type">Aula / Arquibancada</div>
-                <div class="ticket-price">R$ 20<span>,00</span></div>
-                <ul class="ticket-features">
-                    <li>✓ Acesso a todas as batalhas</li>
-                    <li>✓ Acesso às apresentações</li>
-                    <li>✓ Direito a voto no sistema</li>
-                </ul>
-                <a href="https://wa.me/554191626801?text=E%20a%C3%AD!%20Quero%20comprar%201%20ingresso%20para%20o%20evento%20Next%20Move!" target="_blank" class="btn-primary btn-block">Comprar no Whats</a>
+                <h3>Workshop 1</h3>
+                <p class="price">R$ 0,00</p>
+                <p class="desc">Acesso exclusivo à primeira aula do dia.</p>
+                <button class="btn-primary" style="width: 100%;">Comprar Aula 1</button>
             </div>
 
-            <div class="ticket-card vip">
-                <div class="ticket-type">Inscrição Batalha</div>
-                <div class="ticket-price">R$ 00<span>,00</span></div>
-                <ul class="ticket-features">
-                    <li>✓ Vaga garantida nas chaves</li>
-                    <li>✓ Acesso total ao evento</li>
-                    <li>✓ Água e suporte no backstage</li>
-                </ul>
-                <a href="https://wa.me/554191626801?text=Salve!%20Quero%20garantir%20minha%20INSCRI%C3%87%C3%83O%20para%20batalhar%20no%20Next%20Move!" target="_blank" class="btn-primary btn-block">Garantir Vaga</a>
+            <div class="ticket-card">
+                <h3>Workshop 2</h3>
+                <p class="price">R$ 30,00</p>
+                <p class="desc">Acesso exclusivo à segunda aula do dia.</p>
+                <button class="btn-primary" style="width: 100%;">Comprar Aula 2</button>
+            </div>
+
+            <div class="ticket-card highlight">
+                <h3>Combo 2 Aulas</h3>
+                <p class="price">R$ 50,00</p>
+                <p class="desc">Acesso às duas aulas com um desconto especial.</p>
+                <button class="btn-primary" style="width: 100%;">Comprar Combo</button>
+            </div>
+
+            <div class="ticket-card">
+                <h3>Ingresso Batalha</h3>
+                <p class="price">R$ 20,00</p>
+                <p class="desc">Entrada exclusiva para assistir às batalhas.</p>
+                <button class="btn-primary" style="width: 100%;">Assistir Batalha</button>
+            </div>
+
+            <div class="ticket-card highlight-pro">
+                <h3>Passe da Batalha</h3>
+                <p class="price">R$ 80,00</p>
+                <p class="desc">Acesso Total: As 2 Aulas + Entrada/Inscrição na Batalha.</p>
+                <button class="btn-primary" style="width: 100%; background-color: #fff; color: #000;">Comprar Passe</button>
             </div>
         </div>
     </section>
+
+    <script>
+        const menuToggle = document.querySelector('#mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
 </body>
 </html>

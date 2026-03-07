@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma | Next Move</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cronograma.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo"><a href="{{ url_for('home') }}" style="text-decoration: none; color: inherit;">NEXT<span>MOVE</span></a></div>
+            
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">O Evento</a></li>
+                <li><a href="{{ url_for('cronograma') }}">Cronograma</a></li>
+                
+                {% if 'usuario' in session %}
+                    <li><div class="user-avatar">{{ session['usuario'][0] | upper }}</div></li>
+                    <li><a href="{{ url_for('logout') }}" style="font-size: 0.8rem; color: #aaa;">Sair</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn-outline">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <section class="schedule-section" style="min-height: 100vh;">
+        <h2>Cronograma do Evento</h2>
+        <p>Programe-se para não perder nada. Horários sujeitos a alterações.</p>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="time">14:00</div>
+                <div class="content">
+                    <h3>Abertura dos Portões</h3>
+                    <p>Credenciamento, reconhecimento do espaço e aquecimento.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="time">15:00</div>
+                <div class="content">
+                    <h3>Filtros (Pré-seleção)</h3>
+                    <p>Apresentação dos dançarinos para definição do TOP 16.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="time">17:00</div>
+                <div class="content">
+                    <h3>Oitavas e Quartas de Final</h3>
+                    <p>Início dos combates diretos (mata-mata).</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="time">19:00</div>
+                <div class="content">
+                    <h3>Semifinal e Grande Final</h3>
+                    <p>As batalhas decisivas e votação aberta para o público.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const menuToggle = document.querySelector('#mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena de Batalhas | Next Move</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='batalhas.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo"><a href="{{ url_for('home') }}" style="text-decoration: none; color: inherit;">NEXT<span>MOVE</span></a></div>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                {% if 'usuario' in session %}
+                    <li><div class="user-avatar">{{ session['usuario'][0] | upper }}</div></li>
+                    <li><a href="{{ url_for('logout') }}" style="font-size: 0.8rem; color: #aaa;">Sair</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn-outline">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <section class="batalhas-section">
+        <div class="batalhas-header">
+            <h2>Votação ao Vivo</h2>
+            <p>Escolha quem quebrou tudo na roda. Seu voto decide o campeão!</p>
+        </div>
+
+        <div class="arena-container">
+            {% for batalha in batalhas %}
+            <div class="battle-card">
+                
+                <div class="fighter">
+                    <h3>{{ batalha['dancarino_a'] }}</h3>
+                    <form action="/votar" method="POST">
+                        <input type="hidden" name="batalha_id" value="{{ batalha['id'] }}">
+                        <input type="hidden" name="escolha" value="{{ batalha['dancarino_a'] }}">
+                        <button type="submit" class="btn-voto">VOTAR</button>
+                    </form>
+                </div>
+                
+                <div class="vs-badge">VS</div>
+                
+                <div class="fighter">
+                    <h3>{{ batalha['dancarino_b'] }}</h3>
+                    <form action="/votar" method="POST">
+                        <input type="hidden" name="batalha_id" value="{{ batalha['id'] }}">
+                        <input type="hidden" name="escolha" value="{{ batalha['dancarino_b'] }}">
+                        <button type="submit" class="btn-voto">VOTAR</button>
+                    </form>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <script>
+        const menuToggle = document.querySelector('#mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+        menuToggle.addEventListener('click', () => { navLinks.classList.toggle('active'); });
+    </script>
+</body>
+</html>

@@ -19,7 +19,7 @@
 
             <ul class="nav-links">
                 <li><a href="#sobre">O Evento</a></li>
-                <li><a href="#cronograma">Cronograma</a></li>
+                <li><a href="{{ url_for('cronograma') }}" class="btn-outline">Cronograma</a></li>
                 
                 {% if 'usuario' in session %}
                     <li><div class="user-avatar">{{ session['usuario'][0] | upper }}</div></li>
@@ -45,7 +45,7 @@
         <h2>O que vai rolar?</h2>
         <div class="cards-container">
             <div class="card">
-                <h3>Apresentações</h3>
+                <h3>Aulas</h3>
                 <p>Aulas montadas pelo grupo e convidados especiais para abrir o evento com a energia lá no alto.</p>
             </div>
             <div class="card">
