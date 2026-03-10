@@ -56,6 +56,13 @@ def home():
 
 @app.route('/ingressos')
 def ingressos():
+    # Verifica se a pessoa NÃO está logada (não tem o crachá)
+    if 'usuario' not in session:
+        print("Acesso bloqueado: Tentativa de comprar ingresso sem login.")
+        # Manda a pessoa direto para a tela de login
+        return redirect(url_for('login'))
+    
+    # Se ela estiver logada, mostra a tela de ingressos normalmente
     return render_template('ingressos.html')
 
 @app.route('/cronograma')
@@ -125,4 +132,4 @@ def batalhas():
     return render_template('batalhas.html', batalhas=batalhas_ativas)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

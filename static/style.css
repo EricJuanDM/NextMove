@@ -182,50 +182,67 @@ footer {
 }   
 
 /* RESPONSIVIDADE (Telas menores que 768px)   */
+/* ========================================== */
+/* ESTILO DO MENU HAMBÚRGUER (COMPUTADOR)     */
+/* ========================================== */
+.menu-toggle {
+    display: none; /* Fica escondido no PC */
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.menu-toggle .bar {
+    width: 100%;
+    height: 3px;
+    background-color: #fff;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+/* ========================================== */
+/* RESPONSIVIDADE (CELULAR - Telas até 768px) */
+/* ATENÇÃO: Isso precisa ser a última coisa do arquivo! */
+/* ========================================== */
 @media (max-width: 768px) {
-    nav {
-        justify-content: space-between; /* Afasta o logo do botão */
-        align-items: center;
-        flex-direction: row; /* Mantém logo e botão na mesma linha */
-    }
-
-    /* Mostra as 3 barrinhas no celular */
+    /* 1. Faz o botão hambúrguer aparecer */
     .menu-toggle {
-        display: flex;
+        display: flex; 
     }
 
-    /* Esconde os links por padrão e formata o menu aberto */
+    /* 2. Ajusta o Header para não espremer o logo */
+    nav {
+        justify-content: space-between; 
+        align-items: center;
+        flex-direction: row; 
+    }
+
+    /* 3. Esconde a lista de links para abrir só quando clicar */
     .nav-links {
-        display: none; /* Esconde a lista inicialmente */
+        display: none; 
         flex-direction: column;
         width: 100%;
         text-align: center;
         position: absolute;
-        top: 70px; /* Joga o menu para baixo do header */
+        top: 70px; 
         left: 0;
-        background-color: #111; /* Fundo escuro */
+        background-color: #111; 
         padding: 20px 0;
         box-shadow: 0px 10px 15px rgba(0,0,0,0.5);
         z-index: 1000;
         gap: 20px;
     }
 
-    /* Classe que o JS vai adicionar para mostrar o menu quando clicar */
+    /* 4. A classe que o JavaScript usa para mostrar a lista */
     .nav-links.active {
         display: flex;
     }
 
-    /* Ajustes da Tela Inicial (Hero) que já tínhamos */
+    /* 5. Ajustes gerais de texto no celular */
     .hero-content h1 { font-size: 2.5rem; }
     .hero-content p { font-size: 1rem; padding: 0 15px; }
     #sobre { padding: 50px 20px; }
     .card { width: 100%; }
-}
-
-.menu-toggle .bar {
-    width: 30px;
-    height: 3px;
-    background-color: white;
-    border-radius: 3px;
-    transition: all 0.3s ease;
 }
