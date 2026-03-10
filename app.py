@@ -6,7 +6,7 @@ app.secret_key = 'chave_secreta_next_move'
 
 # --- CONFIGURAÇÃO DO BANCO DE DADOS ---
 def init_db():
-    conn = sqlite3.connect('nextmove.db')
+    conn = sqlite3.connect('/home/ericjuandm/mysite/nextmove.db')
     cursor = conn.cursor()
     
     cursor.execute('''
@@ -75,7 +75,7 @@ def cadastro():
     senha_digitada = request.form['senha']
     
     try:
-        conn = sqlite3.connect('nextmove.db')
+        conn = sqlite3.connect('/home/ericjuandm/mysite/nextmove.db')
         cursor = conn.cursor()
         cursor.execute("INSERT INTO usuarios (email, senha) VALUES (?, ?)", (email_digitado, senha_digitada))
         conn.commit()
@@ -94,7 +94,7 @@ def login():
         email_digitado = request.form['email']
         senha_digitada = request.form['senha']
         
-        conn = sqlite3.connect('nextmove.db')
+        conn = sqlite3.connect('/home/ericjuandm/mysite/nextmove.db')
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM usuarios WHERE email = ? AND senha = ?", (email_digitado, senha_digitada))
         usuario = cursor.fetchone()
@@ -121,7 +121,7 @@ def batalhas():
         print("Acesso negado: Usuário não logado tentou acessar as batalhas.")
         return redirect(url_for('login'))
     
-    conn = sqlite3.connect('nextmove.db')
+    conn = sqlite3.connect('/home/ericjuandm/mysite/nextmove.db')
     conn.row_factory = sqlite3.Row 
     cursor = conn.cursor()
     
