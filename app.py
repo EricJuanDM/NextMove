@@ -2,13 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 
 app = Flask(__name__)
-app.secret_key = 'chave_secreta_next_move' 
-
+app.secret_key = 'chave_secreta_next_move'
+CAMINHO_DB = '/home/ericjuandm/mysite/NextMove.db'
 # --- CONFIGURAÇÃO DO BANCO DE DADOS ---
 def init_db():
-    conn = sqlite3.connect('/home/ericjuandm/mysite/nextmove.db')
+    conn = sqlite3.connect(CAMINHO_DB)
     cursor = conn.cursor()
-    
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,7 +16,7 @@ def init_db():
             senha TEXT NOT NULL
         )
     ''')
-    
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS batalhas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,7 +25,7 @@ def init_db():
             status TEXT DEFAULT 'ativa'
         )
     ''')
-    
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS votos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +35,7 @@ def init_db():
             UNIQUE(usuario_email, batalha_id)
         )
     ''')
-    
+
     # Insere as batalhas de teste se a tabela estiver vazia
     cursor.execute("SELECT COUNT(*) FROM batalhas")
     if cursor.fetchone()[0] == 0:
@@ -61,7 +61,7 @@ def ingressos():
         print("Acesso bloqueado: Tentativa de comprar ingresso sem login.")
         # Manda a pessoa direto para a tela de login
         return redirect(url_for('login'))
-    
+
     # Se ela estiver logada, mostra a tela de ingressos normalmente
     return render_template('ingressos.html')
 
@@ -73,17 +73,17 @@ def cronograma():
 def cadastro():
     email_digitado = request.form['email']
     senha_digitada = request.form['senha']
-    
+
     try:
-        conn = sqlite3.connect('/home/ericjuandm/mysite/nextmove.db')
+        conn = sqlite3.connect(CAMINHO_DB)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO usuarios (email, senha) VALUES (?, ?)", (email_digitado, senha_digitada))
         conn.commit()
         conn.close()
-        
+
         session['usuario'] = email_digitado
         return redirect(url_for('home'))
-        
+
     except sqlite3.IntegrityError:
         print("ERRO: E-mail já existe.")
         return redirect(url_for('login'))
@@ -93,19 +93,19 @@ def login():
     if request.method == 'POST':
         email_digitado = request.form['email']
         senha_digitada = request.form['senha']
-        
-        conn = sqlite3.connect('/home/ericjuandm/mysite/nextmove.db')
+
+        conn = sqlite3.connect(CAMINHO_DB)
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM usuarios WHERE email = ? AND senha = ?", (email_digitado, senha_digitada))
         usuario = cursor.fetchone()
         conn.close()
-        
+
         if usuario:
             session['usuario'] = email_digitado
             return redirect(url_for('home'))
         else:
             return render_template('login.html', erro="Dados incorretos")
-            
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -120,15 +120,15 @@ def batalhas():
     if 'usuario' not in session:
         print("Acesso negado: Usuário não logado tentou acessar as batalhas.")
         return redirect(url_for('login'))
-    
-    conn = sqlite3.connect('/home/ericjuandm/mysite/nextmove.db')
-    conn.row_factory = sqlite3.Row 
+
+    conn = sqlite3.connect(CAMINHO_DB)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    
+
     cursor.execute("SELECT * FROM batalhas WHERE status = 'ativa'")
     batalhas_ativas = cursor.fetchall()
     conn.close()
-    
+
     return render_template('batalhas.html', batalhas=batalhas_ativas)
 
 if __name__ == '__main__':
