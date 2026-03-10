@@ -73,7 +73,9 @@ def ingressos():
         return redirect(url_for('login'))
     
     return render_template('ingressos.html')
-
+@app.route('/cronograma')
+def cronograma():
+    return render_template('cronograma.html')
 @app.route('/batalhas')
 def batalhas():
     if 'usuario' not in session:
