@@ -16,6 +16,27 @@ def init_db():
             senha TEXT NOT NULL
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS competidores (
+            id SERIAL PRIMARY KEY,
+            nome TEXT NOT NULL,
+            pontos INTEGER DEFAULT 0,
+            vitorias INTEGER DEFAULT 0,
+            derrotas INTEGER DEFAULT 0
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS batalhas_suico (
+            id SERIAL PRIMARY KEY,
+            round INTEGER NOT NULL,
+            competidor1_id INTEGER REFERENCES competidores(id),
+            competidor2_id INTEGER REFERENCES competidores(id),
+            vencedor_id INTEGER,
+            status TEXT DEFAULT 'pendente'
+        )
+    ''')
+
     conn.commit()
     conn.close()
 init_db()
