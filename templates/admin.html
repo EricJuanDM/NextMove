@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fase Suíça | Next Move</title>
+    <style>
+        /* BASE MATRIX / CYBERPUNK */
+        body { background-color: #0d0d0d; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
+        .header { text-align: center; padding: 25px; background: #000; border-bottom: 2px solid #00ff41; position: relative; }
+        .header h1 { margin: 0; font-size: 2rem; letter-spacing: 2px; text-transform: uppercase; }
+        
+        /* CONTROLES E INPUT */
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 30px; background: #151515; }
+        .form-row { display: flex; gap: 10px; }
+        input { padding: 12px; border: 1px solid #333; background: #222; color: #fff; border-radius: 4px; font-size: 1rem; width: 250px; }
+        .btn-green { background: #00ff41; color: #000; font-weight: bold; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-size: 0.9rem; transition: 0.2s; }
+        .btn-green:hover { background: #00cc33; transform: scale(1.05); }
+        .btn-green:disabled { background: #333; color: #666; cursor: not-allowed; transform: none; }
+        .btn-white { background: #fff; color: #000; }
+        .btn-white:hover { background: #e6e6e6; }
+
+        /* LISTA DE CADASTRADOS (AS TAGS) */
+        .participants-area { width: 100%; max-width: 800px; margin-top: 20px; text-align: center; }
+        .count-badge { display: inline-block; background: #00ff41; color: #000; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-size: 0.9rem; }
+        .tags-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .player-tag { background: #222; border: 1px solid #00ff41; color: #00ff41; padding: 8px 15px; border-radius: 4px; font-size: 0.9rem; text-transform: uppercase; font-weight: bold; display: flex; align-items: center; }
+        .btn-delete { color: #e63946; text-decoration: none; margin-left: 10px; font-weight: 900; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .btn-delete:hover { color: #ff4d4d; transform: scale(1.2); }
+
+        /* A ÁRVORE DO SUÍÇO (BRACKET) */
+        .bracket-container { display: flex; overflow-x: auto; padding: 50px; gap: 50px; align-items: flex-start; min-height: 60vh; }
+        .round-col { display: flex; flex-direction: column; gap: 30px; min-width: 320px; }
+        .round-title { text-align: center; color: #00ff41; text-transform: uppercase; margin-bottom: 15px; font-size: 1.2rem; letter-spacing: 3px; font-weight: bold; }
+        
+        /* CAIXAS DE BATALHA */
+        .pool-box { border: 2px solid #00ff41; border-radius: 6px; background: #000; overflow: hidden; box-shadow: 0 0 15px rgba(0, 255, 65, 0.1); }
+        .pool-header { background: #00ff41; color: #000; text-align: center; font-weight: 900; padding: 10px; font-size: 1.2rem; letter-spacing: 1px; }
+        
+        .match { padding: 15px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 15px; }
+        .match:last-child { border-bottom: none; }
+        
+        .competitors { display: flex; justify-content: space-between; align-items: center; }
+        .player { font-size: 1.1rem; flex: 1; text-transform: uppercase; font-weight: bold; display: flex; flex-direction: column; }
+        .player-score { font-size: 0.7rem; color: #888; margin-top: 3px; }
+        
+        .player.winner { color: #00ff41; }
+        .player.loser { color: #555; text-decoration: line-through; }
+        .vs { color: #00ff41; font-weight: bold; font-size: 1rem; padding: 0 15px; }
+        
+        /* Botões de Escolher o Vencedor */
+        .actions { display: flex; justify-content: space-between; gap: 10px; }
+        .btn-win { flex: 1; background: transparent; border: 1px solid #00ff41; color: #00ff41; padding: 8px; font-size: 0.8rem; cursor: pointer; text-align: center; text-decoration: none; border-radius: 4px; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+        .btn-win:hover { background: #00ff41; color: #000; }
+        
+        .status-done { text-align: center; color: #00ff41; font-size: 0.9rem; font-weight: bold; letter-spacing: 2px; padding: 5px; background: rgba(0, 255, 65, 0.1); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="/" style="color: #00ff41; text-decoration: none; font-size: 0.9rem; position: absolute; left: 20px; top: 30px;">← Voltar ao Site</a>
+        <h1>FASE SUÍÇA - NEXT MOVE</h1>
+    </div>
+
+    <div class="controls">
+        <form method="POST" class="form-row">
+            <input type="text" name="nome" placeholder="Nome do Dançarino" required {% if competidores|length >= 16 %}disabled placeholder="Limite de 16 atingido"{% endif %}>
+            <button type="submit" class="btn-green" {% if competidores|length >= 16 %}disabled{% endif %}>+ Adicionar</button>
+        </form>
+        
+        <form action="/gerar_batalhas" method="POST">
+            <button type="submit" class="btn-green btn-white" {% if competidores|length < 2 %}disabled{% endif %}>
+                ⚙️ Gerar Próximo Round
+            </button>
+        </form>
+
+        <div class="participants-area">
+            <div class="count-badge">DANÇARINOS CONFIRMADOS: {{ competidores|length }} / 16</div>
+            <div class="tags-container">
+                {% for c in competidores %}
+                    <div class="player-tag">
+                        {{ c[1] }}
+                        <a href="/deletar_competidor/{{ c[0] }}" class="btn-delete" title="Remover Dançarino">×</a>
+                    </div>
+                {% else %}
+                    <div style="color: #666; font-size: 0.9rem;">Nenhum dançarino adicionado ainda.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bracket-container">
+        
+        <div class="round-col">
+            <div class="round-title">Round 1</div>
+            <div class="pool-box">
+                <div class="pool-header">0-0</div>
+                {% for b in batalhas %}
+                    {% if b[1] == 1 %}
+                        <div class="match">
+                            <div class="competitors">
+                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[2] %}winner{% else %}loser{% endif %}{% endif %}">
+                                    {{ b[3] }}
+                                </div>
+                                <div class="vs">VS</div>
+                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[6] %}winner{% else %}loser{% endif %}{% endif %}" style="text-align: right;">
+                                    {{ b[7] }}
+                                </div>
+                            </div>
+                            
+                            {% if b[11] == 'pendente' %}
+                            <div class="actions">
+                                <a href="/vitoria/{{ b[0] }}/{{ b[2] }}" class="btn-win">Venceu</a>
+                                <a href="/vitoria/{{ b[0] }}/{{ b[6] }}" class="btn-win">Venceu</a>
+                            </div>
+                            {% else %}
+                            <div class="status-done">FINALIZADO</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="round-col">
+            <div class="round-title">Round 2</div>
+            
+            <div class="pool-box" style="margin-bottom: 30px;">
+                <div class="pool-header">1-0 (Vencedores)</div>
+                {% for b in batalhas %}
+                    {% if b[1] == 2 and (b[4] == 1 or b[8] == 1) %}
+                        <div class="match">
+                            <div class="competitors">
+                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[2] %}winner{% else %}loser{% endif %}{% endif %}">
+                                    {{ b[3] }} <span class="player-score">({{ b[4] }}V - {{ b[5] }}D)</span>
+                                </div>
+                                <div class="vs">VS</div>
+                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[6] %}winner{% else %}loser{% endif %}{% endif %}" style="text-align: right;">
+                                    {{ b[7] }} <span class="player-score">({{ b[8] }}V - {{ b[9] }}D)</span>
+                                </div>
+                            </div>
+                            {% if b[11] == 'pendente' %}
+                            <div class="actions">
+                                <a href="/vitoria/{{ b[0] }}/{{ b[2] }}" class="btn-win">Venceu</a>
+                                <a href="/vitoria/{{ b[0] }}/{{ b[6] }}" class="btn-win">Venceu</a>
+                            </div>
+                            {% else %}
+                            <div class="status-done">FINALIZADO</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="pool-box">
+                <div class="pool-header">0-1 (Repescagem)</div>
+                {% for b in batalhas %}
+                    {% if b[1] == 2 and (b[4] == 0 or b[8] == 0) %}
+                        <div class="match">
+                            <div class="competitors">
+                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[2] %}winner{% else %}loser{% endif %}{% endif %}">
+                                    {{ b[3] }} <span class="player-score">({{ b[4] }}V - {{ b[5] }}D)</span>
+                                </div>
+                                <div class="vs">VS</div>
+                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[6] %}winner{% else %}loser{% endif %}{% endif %}" style="text-align: right;">
+                                    {{ b[7] }} <span class="player-score">({{ b[8] }}V - {{ b[9] }}D)</span>
+                                </div>
+                            </div>
+                            {% if b[11] == 'pendente' %}
+                            <div class="actions">
+                                <a href="/vitoria/{{ b[0] }}/{{ b[2] }}" class="btn-win">Venceu</a>
+                                <a href="/vitoria/{{ b[0] }}/{{ b[6] }}" class="btn-win">Venceu</a>
+                            </div>
+                            {% else %}
+                            <div class="status-done">FINALIZADO</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="round-col">
+            <div class="round-title">Round 3</div>
+            <div class="pool-box">
+                <div class="pool-header">Batalhas Mistas</div>
+                {% for b in batalhas %}
+                    {% if b[1] == 3 %}
+                        <div class="match">
+                            <div class="competitors">
+                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[2] %}winner{% else %}loser{% endif %}{% endif %}">
+                                    {{ b[3] }} <span class="player-score">({{ b[4] }}V - {{ b[5] }}D)</span>
+                                </div>
+                                <div class="vs">VS</div>
+                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[6] %}winner{% else %}loser{% endif %}{% endif %}" style="text-align: right;">
+                                    {{ b[7] }} <span class="player-score">({{ b[8] }}V - {{ b[9] }}D)</span>
+                                </div>
+                            </div>
+                            {% if b[11] == 'pendente' %}
+                            <div class="actions">
+                                <a href="/vitoria/{{ b[0] }}/{{ b[2] }}" class="btn-win">Venceu</a>
+                                <a href="/vitoria/{{ b[0] }}/{{ b[6] }}" class="btn-win">Venceu</a>
+                            </div>
+                            {% else %}
+                            <div class="status-done">FINALIZADO</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
