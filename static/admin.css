@@ -1,0 +1,98 @@
+/* =========================================
+   TEMA BASE E CABEÇALHO
+========================================= */
+body { background-color: #050505; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
+.header { text-align: center; padding: 25px; background: #000; border-bottom: 2px solid #00ff41; position: relative; transition: 0.5s; }
+.header.mata-mata { border-bottom-color: #ffaa00; }
+.header h1 { margin: 0; font-size: 2.2rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 900; }
+.header.mata-mata h1 { color: #ffaa00; }
+
+/* =========================================
+   CONTROLES E BOTÕES
+========================================= */
+.controls { display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 20px; background: #0a0a0a; border-bottom: 1px solid #222; }
+.form-row { display: flex; gap: 10px; }
+input { padding: 10px; border: 1px solid #333; background: #111; color: #fff; border-radius: 4px; width: 250px; }
+.btn { font-weight: bold; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+.btn-green { background: #00ff41; color: #000; }
+.btn-green:hover { background: #00cc33; }
+.btn-red { background: #e63946; color: #fff; }
+.btn-gold { background: #ffaa00; color: #000; font-size: 1.1rem; padding: 15px 30px; box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
+.btn-gold:hover { background: #e69900; transform: scale(1.05); }
+
+/* =========================================
+   ZONAS DE CLASSIFICAÇÃO (TOPO DA TELA)
+========================================= */
+.status-zones { display: flex; justify-content: space-around; padding: 20px; background: #050505; gap: 20px; }
+.zone { flex: 1; padding: 15px; border-radius: 6px; border: 1px dashed #333; }
+.zone h3 { margin-top: 0; font-size: 1rem; text-transform: uppercase; text-align: center; letter-spacing: 2px; }
+.zone-advanced h3 { color: #00ff41; }
+.zone-eliminated h3 { color: #e63946; }
+
+.tag-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.player-tag { padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; text-transform: uppercase; }
+.tag-adv { background: rgba(0, 255, 65, 0.2); border: 1px solid #00ff41; color: #00ff41; }
+.tag-elim { background: rgba(230, 57, 70, 0.2); border: 1px solid #e63946; color: #e63946; text-decoration: line-through; }
+.tag-active { background: #222; border: 1px solid #555; color: #fff; }
+.btn-delete { color: #e63946; text-decoration: none; margin-left: 8px; font-weight: 900; }
+
+/* =========================================
+   A ÁRVORE DO CHAVEAMENTO (SCROLL LATERAL)
+========================================= */
+.bracket-container { 
+    display: flex; 
+    overflow-x: auto; /* Permite rolar para o lado */
+    padding: 40px; 
+    gap: 30px; 
+    align-items: flex-start; 
+    min-height: 60vh; 
+    justify-content: flex-start; /* Garante alinhamento à esquerda */
+    white-space: nowrap; /* Impede quebra de linha forçada */
+}
+
+/* Estilo da barra de rolagem (Chrome, Edge, Safari) */
+.bracket-container::-webkit-scrollbar { height: 10px; }
+.bracket-container::-webkit-scrollbar-track { background: #050505; }
+.bracket-container::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 5px; }
+.playoffs::-webkit-scrollbar-thumb { background: #ffaa00; } /* Dourada no Mata-Mata */
+
+.round-col { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 40px; 
+    min-width: 300px; 
+    flex-shrink: 0; /* Impede que a coluna amasse e corte a tela */
+}
+.round-title { text-align: center; color: #555; text-transform: uppercase; margin-bottom: 5px; font-size: 1rem; letter-spacing: 3px; font-weight: bold; border-bottom: 1px solid #222; padding-bottom: 10px; }
+
+/* =========================================
+   CAIXAS DE BATALHA E COMPONENTES INTERNOS
+========================================= */
+.pool-box { border: 1px solid #00ff41; border-radius: 4px; background: #0a0a0a; white-space: normal; }
+.pool-header { background: #00ff41; color: #000; text-align: center; font-weight: 900; padding: 5px; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; }
+
+.match { padding: 12px; border-bottom: 1px solid #1a1a1a; display: flex; flex-direction: column; gap: 10px; }
+.match:last-child { border-bottom: none; }
+.competitors { display: flex; justify-content: space-between; align-items: center; }
+.player { font-size: 1.1rem; flex: 1; text-transform: uppercase; font-weight: bold; }
+.player.winner { color: #00ff41; }
+.player.loser { color: #444; text-decoration: line-through; }
+.vs { color: #00ff41; font-weight: bold; font-size: 0.8rem; padding: 0 10px; }
+
+/* Botões de Decisão (Venceu) */
+.actions { display: flex; gap: 5px; }
+.btn-win { flex: 1; background: transparent; border: 1px dashed #00ff41; color: #00ff41; padding: 8px; font-size: 0.85rem; cursor: pointer; text-align: center; text-decoration: none; border-radius: 3px; text-transform: uppercase; }
+.btn-win:hover { background: #00ff41; color: #000; }
+.status-done { text-align: center; color: #00ff41; font-size: 0.8rem; font-weight: bold; letter-spacing: 2px; }
+
+/* =========================================
+   TEMA DOURADO (FASE ELIMINATÓRIA / MATA-MATA)
+========================================= */
+.playoffs .pool-box { border-color: #ffaa00; box-shadow: 0 0 10px rgba(255, 170, 0, 0.1); }
+.playoffs .pool-header { background: #ffaa00; color: #000; }
+.playoffs .round-title { color: #ffaa00; border-bottom-color: #ffaa00; }
+.playoffs .vs { color: #ffaa00; }
+.playoffs .player.winner { color: #ffaa00; }
+.playoffs .btn-win { border-color: #ffaa00; color: #ffaa00; }
+.playoffs .btn-win:hover { background: #ffaa00; color: #000; }
+.playoffs .status-done { color: #ffaa00; }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Ranking do Bolão | Next Move</title>
+    <style>
+        body { background-color: #050505; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        .ranking-container { max-width: 600px; margin: 40px auto; background: #111; padding: 30px; border-radius: 10px; border: 1px solid #ffaa00; box-shadow: 0 0 30px rgba(255, 170, 0, 0.2); }
+        h1 { text-align: center; color: #ffaa00; text-transform: uppercase; letter-spacing: 2px; }
+        .rank-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #333; font-size: 1.2rem; }
+        .rank-item:last-child { border-bottom: none; }
+        
+        /* Efeito de Pódio para os 3 primeiros */
+        .rank-item:nth-child(1) { color: #ffaa00; font-weight: 900; font-size: 1.6rem; text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); }
+        .rank-item:nth-child(2) { color: #c0c0c0; font-weight: bold; font-size: 1.4rem; }
+        .rank-item:nth-child(3) { color: #cd7f32; font-weight: bold; font-size: 1.3rem; }
+        
+        .btn-voltar { display: block; width: 200px; margin: 30px auto 0; text-align: center; padding: 12px; background: #222; color: #00ff41; text-decoration: none; border: 1px solid #00ff41; border-radius: 6px; font-weight: bold; transition: 0.2s; }
+        .btn-voltar:hover { background: #00ff41; color: #000; }
+    </style>
+</head>
+<body>
+    <div class="ranking-container">
+        <h1>🏆 VENCEDORES DO BOLÃO 🏆</h1>
+        
+        {% if ranking %}
+            {% for r in ranking %}
+                <div class="rank-item">
+                    <span>#{{ loop.index }} - {{ r[0].split('@')[0] }}</span> 
+                    <span>{{ r[1] }} pts</span>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #888;">Nenhum ponto foi computado no sistema ainda.</p>
+        {% endif %}
+
+        <a href="/admin" class="btn-voltar">&larr; Voltar ao Painel</a>
+    </div>
+</body>
+</html>

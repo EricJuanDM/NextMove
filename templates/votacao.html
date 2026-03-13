@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão Next Move</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='votacao.css') }}">
+</head>
+<body>
+    <div class="top-bar">
+        {% if 'usuario' in session or 'usuario_id' in session %}
+            <div class="user-info">
+                <span> Logado</span>
+            </div>
+            <a href="/logout" class="btn-login">Sair</a>
+        {% else %}
+            <a href="/login" class="btn-login">Fazer Login</a>
+        {% endif %}
+        
+    </div>
+{% set ns = namespace(acabou=false) %}
+    {% for b in batalhas %}
+        {% if b[2] == 'Final' and b[3] == 'finalizada' %}
+            {% set ns.acabou = true %}
+        {% endif %}
+    {% endfor %}
+
+    {% if ns.acabou %}
+        <div style="max-width: 600px; margin: 40px auto; background: #ffaa00; color: #000; padding: 30px; text-align: center; border-radius: 8px; box-shadow: 0 0 20px rgba(255, 170, 0, 0.4);">
+            <h1 style="color: #000; font-size: 2.2rem; margin-top: 0;">👑 O EVENTO ACABOU! 👑</h1>
+            <p style="font-size: 1.2rem; font-weight: bold;">Muito obrigado por participar do nosso Pick'em.</p>
+            <p>Fique de olho no palco principal para descobrir quem foi o espectador que mais acertou os palpites e levou o prêmio para casa!</p>
+        </div>
+        
+        <style> .batalhas-container { display: none !important; } </style>
+    {% endif %}
+    <h1>Faça seus Palpites</h1>
+    <p>Escolha quem você acha que vai vencer as batalhas!</p>
+
+    <div class="batalhas-container">
+        {% for b in batalhas %}
+            <div class="card-batalha" id="batalha-{{ b[0] }}">
+                <div class="card-header">Round {{ b[1] }} | Chave {{ b[2] }}</div>
+                
+                <div class="opcoes">
+                    <button 
+                        id="btn-{{ b[0] }}-{{ b[4] }}" 
+                        class="btn-voto {% if meus_palpites.get(b[0]) == b[4] %}selecionado{% endif %}"
+                        onclick="fazerPalpite({{ b[0] }}, {{ b[4] }})"
+                        {% if b[3] == 'finalizada' %}disabled{% endif %}
+                    >
+                        {{ b[5] }}
+                    </button>
+
+                    <span class="vs">VS</span>
+
+                    <button 
+                        id="btn-{{ b[0] }}-{{ b[6] }}" 
+                        class="btn-voto {% if meus_palpites.get(b[0]) == b[6] %}selecionado{% endif %}"
+                        onclick="fazerPalpite({{ b[0] }}, {{ b[6] }})"
+                        {% if b[3] == 'finalizada' %}disabled{% endif %}
+                    >
+                        {{ b[7] }}
+                    </button>
+                </div>
+
+                <div class="msg-status" id="msg-{{ b[0] }}">
+                    {% if b[3] == 'finalizada' %}
+                        <span style="color: #e63946;">🔒 Batalha Encerrada</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <p style="text-align: center; color: #888;">Nenhuma batalha disponível no momento.</p>
+        {% endfor %}
+    </div>
+
+    <script>
+        function fazerPalpite(batalhaId, competidorId) {
+            const msgDiv = document.getElementById(`msg-${batalhaId}`);
+            msgDiv.innerText = "Salvando palpite...";
+            msgDiv.style.color = "#888";
+
+            // 1. Envia o voto para o Python de forma invisível
+            fetch(`/enviar_palpite/${batalhaId}/${competidorId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'sucesso') {
+                    // 2. Tira a cor verde de todos os botões dessa batalha
+                    document.querySelectorAll(`#batalha-${batalhaId} .btn-voto`).forEach(btn => {
+                        btn.classList.remove('selecionado');
+                    });
+
+                    // 3. Coloca a cor verde apenas no botão que o cara acabou de clicar
+                    document.getElementById(`btn-${batalhaId}-${competidorId}`).classList.add('selecionado');
+                    
+                    msgDiv.innerText = "Palpite salvo! ✓";
+                    msgDiv.style.color = "#00ff41";
+                } else {
+                    // Se a batalha já acabou ou o cara não tiver logado
+                    msgDiv.innerText = data.mensagem;
+                    msgDiv.style.color = "#e63946";
+                }
+            })
+            .catch(error => {
+                msgDiv.innerText = "Erro ao conectar.";
+                msgDiv.style.color = "#e63946";
+            });
+        }
+    </script>
+</body>
+</html>

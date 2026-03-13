@@ -3,214 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fase Suíça | Next Move</title>
+    <title>Painel do Evento | Next Move</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
     <style>
-        /* BASE MATRIX / CYBERPUNK */
-        body { background-color: #0d0d0d; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
-        .header { text-align: center; padding: 25px; background: #000; border-bottom: 2px solid #00ff41; position: relative; }
-        .header h1 { margin: 0; font-size: 2rem; letter-spacing: 2px; text-transform: uppercase; }
-        
-        /* CONTROLES E INPUT */
-        .controls { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 30px; background: #151515; }
-        .form-row { display: flex; gap: 10px; }
-        input { padding: 12px; border: 1px solid #333; background: #222; color: #fff; border-radius: 4px; font-size: 1rem; width: 250px; }
-        .btn-green { background: #00ff41; color: #000; font-weight: bold; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-size: 0.9rem; transition: 0.2s; }
-        .btn-green:hover { background: #00cc33; transform: scale(1.05); }
-        .btn-green:disabled { background: #333; color: #666; cursor: not-allowed; transform: none; }
-        .btn-white { background: #fff; color: #000; }
-        .btn-white:hover { background: #e6e6e6; }
-
-        /* LISTA DE CADASTRADOS (AS TAGS) */
-        .participants-area { width: 100%; max-width: 800px; margin-top: 20px; text-align: center; }
-        .count-badge { display: inline-block; background: #00ff41; color: #000; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; font-size: 0.9rem; }
-        .tags-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .player-tag { background: #222; border: 1px solid #00ff41; color: #00ff41; padding: 8px 15px; border-radius: 4px; font-size: 0.9rem; text-transform: uppercase; font-weight: bold; display: flex; align-items: center; }
-        .btn-delete { color: #e63946; text-decoration: none; margin-left: 10px; font-weight: 900; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
-        .btn-delete:hover { color: #ff4d4d; transform: scale(1.2); }
-
-        /* A ÁRVORE DO SUÍÇO (BRACKET) */
-        .bracket-container { display: flex; overflow-x: auto; padding: 50px; gap: 50px; align-items: flex-start; min-height: 60vh; }
-        .round-col { display: flex; flex-direction: column; gap: 30px; min-width: 320px; }
-        .round-title { text-align: center; color: #00ff41; text-transform: uppercase; margin-bottom: 15px; font-size: 1.2rem; letter-spacing: 3px; font-weight: bold; }
-        
-        /* CAIXAS DE BATALHA */
-        .pool-box { border: 2px solid #00ff41; border-radius: 6px; background: #000; overflow: hidden; box-shadow: 0 0 15px rgba(0, 255, 65, 0.1); }
-        .pool-header { background: #00ff41; color: #000; text-align: center; font-weight: 900; padding: 10px; font-size: 1.2rem; letter-spacing: 1px; }
-        
-        .match { padding: 15px; border-bottom: 1px solid #222; display: flex; flex-direction: column; gap: 15px; }
-        .match:last-child { border-bottom: none; }
-        
-        .competitors { display: flex; justify-content: space-between; align-items: center; }
-        .player { font-size: 1.1rem; flex: 1; text-transform: uppercase; font-weight: bold; display: flex; flex-direction: column; }
-        .player-score { font-size: 0.7rem; color: #888; margin-top: 3px; }
-        
-        .player.winner { color: #00ff41; }
-        .player.loser { color: #555; text-decoration: line-through; }
-        .vs { color: #00ff41; font-weight: bold; font-size: 1rem; padding: 0 15px; }
-        
-        /* Botões de Escolher o Vencedor */
-        .actions { display: flex; justify-content: space-between; gap: 10px; }
-        .btn-win { flex: 1; background: transparent; border: 1px solid #00ff41; color: #00ff41; padding: 8px; font-size: 0.8rem; cursor: pointer; text-align: center; text-decoration: none; border-radius: 4px; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
-        .btn-win:hover { background: #00ff41; color: #000; }
-        
-        .status-done { text-align: center; color: #00ff41; font-size: 0.9rem; font-weight: bold; letter-spacing: 2px; padding: 5px; background: rgba(0, 255, 65, 0.1); border-radius: 4px; }
+        /* Animações CSS para o botão brilhar quando o Round acabar */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px #00ff41; transform: scale(1); }
+            50% { box-shadow: 0 0 20px #00ff41; transform: scale(1.05); }
+            100% { box-shadow: 0 0 5px #00ff41; transform: scale(1); }
+        }
+        @keyframes pulse-glow-gold {
+            0% { box-shadow: 0 0 5px #ffaa00; transform: scale(1); }
+            50% { box-shadow: 0 0 20px #ffaa00; transform: scale(1.05); }
+            100% { box-shadow: 0 0 5px #ffaa00; transform: scale(1); }
+        }
+        .btn-glow { animation: pulse-glow 1.5s infinite; background: #00ff41 !important; color: #000 !important; font-weight: 900; }
+        .btn-glow-gold { animation: pulse-glow-gold 1.5s infinite; background: #ffaa00 !important; color: #000 !important; font-weight: 900; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <a href="/" style="color: #00ff41; text-decoration: none; font-size: 0.9rem; position: absolute; left: 20px; top: 30px;">← Voltar ao Site</a>
-        <h1>FASE SUÍÇA - NEXT MOVE</h1>
+    <div class="header" id="main-header">
+        <h1 id="header-title">CARREGANDO...</h1>
     </div>
 
     <div class="controls">
-        <form method="POST" class="form-row">
-            <input type="text" name="nome" placeholder="Nome do Dançarino" required {% if competidores|length >= 16 %}disabled placeholder="Limite de 16 atingido"{% endif %}>
-            <button type="submit" class="btn-green" {% if competidores|length >= 16 %}disabled{% endif %}>+ Adicionar</button>
-        </form>
-        
-        <form action="/gerar_batalhas" method="POST">
-            <button type="submit" class="btn-green btn-white" {% if competidores|length < 2 %}disabled{% endif %}>
-                ⚙️ Gerar Próximo Round
-            </button>
-        </form>
-
-        <div class="participants-area">
-            <div class="count-badge">DANÇARINOS CONFIRMADOS: {{ competidores|length }} / 16</div>
-            <div class="tags-container">
-                {% for c in competidores %}
-                    <div class="player-tag">
-                        {{ c[1] }}
-                        <a href="/deletar_competidor/{{ c[0] }}" class="btn-delete" title="Remover Dançarino">×</a>
-                    </div>
-                {% else %}
-                    <div style="color: #666; font-size: 0.9rem;">Nenhum dançarino adicionado ainda.</div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <div class="bracket-container">
-        
-        <div class="round-col">
-            <div class="round-title">Round 1</div>
-            <div class="pool-box">
-                <div class="pool-header">0-0</div>
-                {% for b in batalhas %}
-                    {% if b[1] == 1 %}
-                        <div class="match">
-                            <div class="competitors">
-                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[2] %}winner{% else %}loser{% endif %}{% endif %}">
-                                    {{ b[3] }}
-                                </div>
-                                <div class="vs">VS</div>
-                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[6] %}winner{% else %}loser{% endif %}{% endif %}" style="text-align: right;">
-                                    {{ b[7] }}
-                                </div>
-                            </div>
-                            
-                            {% if b[11] == 'pendente' %}
-                            <div class="actions">
-                                <a href="/vitoria/{{ b[0] }}/{{ b[2] }}" class="btn-win">Venceu</a>
-                                <a href="/vitoria/{{ b[0] }}/{{ b[6] }}" class="btn-win">Venceu</a>
-                            </div>
-                            {% else %}
-                            <div class="status-done">FINALIZADO</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="round-col">
-            <div class="round-title">Round 2</div>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <form method="POST" class="form-row">
+                <input type="text" name="nome" id="input-nome" placeholder="Nome do Dançarino" required>
+                <button type="submit" class="btn btn-green" id="btn-add">+ Adicionar</button>
+            </form>
             
-            <div class="pool-box" style="margin-bottom: 30px;">
-                <div class="pool-header">1-0 (Vencedores)</div>
-                {% for b in batalhas %}
-                    {% if b[1] == 2 and (b[4] == 1 or b[8] == 1) %}
-                        <div class="match">
-                            <div class="competitors">
-                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[2] %}winner{% else %}loser{% endif %}{% endif %}">
-                                    {{ b[3] }} <span class="player-score">({{ b[4] }}V - {{ b[5] }}D)</span>
-                                </div>
-                                <div class="vs">VS</div>
-                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[6] %}winner{% else %}loser{% endif %}{% endif %}" style="text-align: right;">
-                                    {{ b[7] }} <span class="player-score">({{ b[8] }}V - {{ b[9] }}D)</span>
-                                </div>
-                            </div>
-                            {% if b[11] == 'pendente' %}
-                            <div class="actions">
-                                <a href="/vitoria/{{ b[0] }}/{{ b[2] }}" class="btn-win">Venceu</a>
-                                <a href="/vitoria/{{ b[0] }}/{{ b[6] }}" class="btn-win">Venceu</a>
-                            </div>
-                            {% else %}
-                            <div class="status-done">FINALIZADO</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
+            <div id="dynamic-controls"></div>
 
-            <div class="pool-box">
-                <div class="pool-header">0-1 (Repescagem)</div>
-                {% for b in batalhas %}
-                    {% if b[1] == 2 and (b[4] == 0 or b[8] == 0) %}
-                        <div class="match">
-                            <div class="competitors">
-                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[2] %}winner{% else %}loser{% endif %}{% endif %}">
-                                    {{ b[3] }} <span class="player-score">({{ b[4] }}V - {{ b[5] }}D)</span>
-                                </div>
-                                <div class="vs">VS</div>
-                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[6] %}winner{% else %}loser{% endif %}{% endif %}" style="text-align: right;">
-                                    {{ b[7] }} <span class="player-score">({{ b[8] }}V - {{ b[9] }}D)</span>
-                                </div>
-                            </div>
-                            {% if b[11] == 'pendente' %}
-                            <div class="actions">
-                                <a href="/vitoria/{{ b[0] }}/{{ b[2] }}" class="btn-win">Venceu</a>
-                                <a href="/vitoria/{{ b[0] }}/{{ b[6] }}" class="btn-win">Venceu</a>
-                            </div>
-                            {% else %}
-                            <div class="status-done">FINALIZADO</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
+            <form action="/resetar_torneio" method="POST" onsubmit="return confirm('ATENÇÃO: Isso apaga tudo. Continuar?');">
+                <button type="submit" class="btn btn-red">Resetar Torneio</button>
+            </form>
         </div>
-        
-        <div class="round-col">
-            <div class="round-title">Round 3</div>
-            <div class="pool-box">
-                <div class="pool-header">Batalhas Mistas</div>
-                {% for b in batalhas %}
-                    {% if b[1] == 3 %}
-                        <div class="match">
-                            <div class="competitors">
-                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[2] %}winner{% else %}loser{% endif %}{% endif %}">
-                                    {{ b[3] }} <span class="player-score">({{ b[4] }}V - {{ b[5] }}D)</span>
-                                </div>
-                                <div class="vs">VS</div>
-                                <div class="player {% if b[11] == 'finalizada' %}{% if b[10] == b[6] %}winner{% else %}loser{% endif %}{% endif %}" style="text-align: right;">
-                                    {{ b[7] }} <span class="player-score">({{ b[8] }}V - {{ b[9] }}D)</span>
-                                </div>
-                            </div>
-                            {% if b[11] == 'pendente' %}
-                            <div class="actions">
-                                <a href="/vitoria/{{ b[0] }}/{{ b[2] }}" class="btn-win">Venceu</a>
-                                <a href="/vitoria/{{ b[0] }}/{{ b[6] }}" class="btn-win">Venceu</a>
-                            </div>
-                            {% else %}
-                            <div class="status-done">FINALIZADO</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
-
     </div>
+
+    <div class="status-zones" id="status-zones"></div>
+    <div class="bracket-container" id="bracket-container"></div>
+
+
+    <script>
+        const rawComps = {{ competidores | tojson | safe }};
+        const rawBats = {{ batalhas | tojson | safe }};
+
+        // 2. Mapeamos os Arrays para Objetos JS (Fica muito mais fácil de ler)
+        const comps = rawComps.map(c => ({
+            id: c[0], nome: c[1], v: c[3], d: c[4]
+        }));
+
+        const bats = rawBats.map(b => ({
+            id: b[0], round: b[1],
+            c1_id: b[2], c1_nome: b[3],
+            c2_id: b[6], c2_nome: b[7],
+            vencedor_id: b[10], status: b[11], pool: b[12]
+        }));
+
+        // Controle para a animação do botão
+        let batalhasPendentes = bats.filter(b => b.status === 'pendente').length;
+
+        // 3. Função que constrói as caixas de batalha dinamicamente
+        function renderPool(poolName) {
+            const matches = bats.filter(b => b.pool === poolName);
+            if (matches.length === 0) return ''; // Se não tem batalha na caixa, nem desenha
+            
+            let html = `<div class="pool-box"><div class="pool-header">${poolName}</div>`;
+            
+            matches.forEach(b => {
+                const w1 = (b.status === 'finalizada' && b.vencedor_id === b.c1_id) ? 'winner' : (b.status === 'finalizada' ? 'loser' : '');
+                const w2 = (b.status === 'finalizada' && b.vencedor_id === b.c2_id) ? 'winner' : (b.status === 'finalizada' ? 'loser' : '');
+                
+                html += `
+                <div class="match">
+                    <div class="competitors">
+                        <div class="player ${w1}">${b.c1_nome}</div>
+                        <div class="vs">VS</div>
+                        <div class="player ${w2}" style="text-align: right;">${b.c2_nome}</div>
+                    </div>
+                    ${b.status === 'pendente' ? `
+                    <div class="actions" id="batalha-${b.id}">
+                        <button type="button" onclick="registrarVoto(${b.id}, ${b.c1_id})" class="btn-win">Venceu</button>
+                        <button type="button" onclick="registrarVoto(${b.id}, ${b.c2_id})" class="btn-win">Venceu</button>
+                    </div>
+                    ` : `<div class="status-done">FINALIZADO</div>`}
+                </div>`;
+            });
+            return html + `</div>`;
+        }
+
+        // 4. MOTOR PRINCIPAL: Avalia o cenário e desenha a interface na hora
+        function renderApp() {
+            const classificados = comps.filter(c => c.v >= 3);
+            const eliminados = comps.filter(c => c.d >= 3);
+            const jogando = comps.filter(c => c.v < 3 && c.d < 3);
+
+            const temQuartas = bats.some(b => b.pool === 'Quartas');
+            const temSemi = bats.some(b => b.pool === 'Semi');
+            const temFinal = bats.some(b => b.pool === 'Final');
+
+            // --- A. DESENHA O CABEÇALHO ---
+            document.getElementById('header-title').innerText = temQuartas ? 'FASE ELIMINATÓRIA' : 'SWISS BRACKET';
+            if (temQuartas) document.getElementById('main-header').classList.add('mata-mata');
+            if (temQuartas) {
+                document.getElementById('input-nome').disabled = true;
+                document.getElementById('btn-add').disabled = true;
+            }
+
+            // --- B. DESENHA OS BOTÕES DE GERAR ---
+            const controlsDiv = document.getElementById('dynamic-controls');
+            if (classificados.length === 8) {
+                if (!temQuartas) controlsDiv.innerHTML = `<form action="/gerar_mata_mata" method="POST"><button type="submit" class="btn btn-gold" id="btn-gerar">🏆 Gerar Quartas de Final</button></form>`;
+                else if (!temSemi) controlsDiv.innerHTML = `<form action="/gerar_mata_mata" method="POST"><button type="submit" class="btn btn-gold" id="btn-gerar">🏆 Gerar Semifinais</button></form>`;
+                else if (!temFinal) controlsDiv.innerHTML = `<form action="/gerar_mata_mata" method="POST"><button type="submit" class="btn btn-gold" id="btn-gerar">🏆 Gerar Final</button></form>`;
+                else controlsDiv.innerHTML = `<a href="/ranking_bolao" class="btn btn-gold" style="text-decoration: none; display: inline-block;">🏆 VER RANKING DO BOLÃO</a>`;
+            } else {
+                controlsDiv.innerHTML = `<form action="/gerar_batalhas" method="POST"><button type="submit" class="btn" style="background: #fff; color: #000;" id="btn-gerar">⚙️ Gerar Próximo Round</button></form>`;
+            }
+
+            // --- C. DESENHA AS ZONAS DE STATUS (SÓ NO SUÍÇO) ---
+            const zonesDiv = document.getElementById('status-zones');
+            if (!temQuartas) {
+                zonesDiv.innerHTML = `
+                <div class="zone zone-advanced"><h3>Top 8 (Avançam)</h3><div class="tag-container">
+                    ${classificados.map(c => `<div class="player-tag tag-adv">${c.nome} (${c.v}V-${c.d}D)</div>`).join('')}
+                </div></div>
+                <div class="zone" style="border-color: #555;"><h3 style="color: #fff;">Jogando</h3><div class="tag-container">
+                    ${jogando.map(c => `<div class="player-tag tag-active">${c.nome} (${c.v}V-${c.d}D) <a href="/deletar_competidor/${c.id}" class="btn-delete">×</a></div>`).join('')}
+                </div></div>
+                <div class="zone zone-eliminated"><h3>Eliminados</h3><div class="tag-container">
+                    ${eliminados.map(c => `<div class="player-tag tag-elim">${c.nome} (${c.v}V-${c.d}D)</div>`).join('')}
+                </div></div>`;
+            } else {
+                zonesDiv.style.display = 'none';
+            }
+
+            // --- D. DESENHA O CHAVEAMENTO ---
+            const bracketDiv = document.getElementById('bracket-container');
+            if (temQuartas) {
+                bracketDiv.classList.add('playoffs');
+                let html = '';
+                if(renderPool('Quartas')) html += `<div class="round-col"><div class="round-title">Quartas de Final</div>${renderPool('Quartas')}</div>`;
+                if(renderPool('Semi')) html += `<div class="round-col"><div class="round-title">Semifinais</div>${renderPool('Semi')}</div>`;
+                if(renderPool('Final')) html += `<div class="round-col"><div class="round-title">Grande Final</div>${renderPool('Final')}</div>`;
+                
+                // Lógica da Coroa do Campeão
+                const finalMatch = bats.find(b => b.pool === 'Final');
+                if (finalMatch && finalMatch.status === 'finalizada') {
+                    const campeao = finalMatch.vencedor_id === finalMatch.c1_id ? finalMatch.c1_nome : finalMatch.c2_nome;
+                    html += `<div class="round-col" style="justify-content: center;">
+                        <div class="round-title" style="color: #ffaa00; border-bottom: none; font-size: 1.5rem;">👑 CAMPEÃO 👑</div>
+                        <div style="background: #ffaa00; color: #000; padding: 30px; border-radius: 8px; font-weight: 900; font-size: 2rem; text-align: center; text-transform: uppercase; box-shadow: 0 0 40px rgba(255, 170, 0, 0.6); border: 2px solid #fff;">${campeao}</div>
+                    </div>`;
+                }
+                bracketDiv.innerHTML = html;
+            } else {
+                bracketDiv.innerHTML = `
+                    <div class="round-col"><div class="round-title">Round 1</div>${renderPool('0-0')}</div>
+                    <div class="round-col"><div class="round-title">Round 2</div>${renderPool('1-0')}${renderPool('0-1')}</div>
+                    <div class="round-col"><div class="round-title">Round 3</div>${renderPool('2-0')}${renderPool('1-1')}${renderPool('0-2')}</div>
+                    <div class="round-col"><div class="round-title">Round 4</div>${renderPool('2-1')}${renderPool('1-2')}</div>
+                    <div class="round-col"><div class="round-title">Round 5</div>${renderPool('2-2')}</div>
+                `;
+            }
+        }
+
+        // Inicia a aplicação construindo tudo
+        renderApp();
+
+        // ==========================================
+        // VOTAÇÃO SILENCIOSA (AJAX)
+        // ==========================================
+        function registrarVoto(batalhaId, vencedorId) {
+            const containerAcoes = document.getElementById(`batalha-${batalhaId}`);
+            containerAcoes.innerHTML = '<div class="status-done" style="color: #888;">SALVANDO...</div>';
+
+            fetch(`/vitoria/${batalhaId}/${vencedorId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'sucesso') {
+                    containerAcoes.innerHTML = '<div class="status-done">FINALIZADO ✓</div>';
+                    batalhasPendentes--; // Subtrai uma batalha pendente
+                    
+                    // MÁGICA DE UX: Se todas as batalhas acabaram, faz o botão piscar!
+                    if (batalhasPendentes === 0) {
+                        const btn = document.getElementById('btn-gerar');
+                        if(btn && !btn.innerText.includes('CAMPEONATO ENCERRADO')) {
+                            const temQuartas = bats.some(b => b.pool === 'Quartas');
+                            btn.classList.add(temQuartas ? 'btn-glow-gold' : 'btn-glow');
+                            btn.innerText = '🌟 ' + btn.innerText + ' 🌟';
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                containerAcoes.innerHTML = '<div class="status-done" style="color: #e63946;">ERRO AO SALVAR</div>';
+            });
+        }
+    </script>
 </body>
 </html>
