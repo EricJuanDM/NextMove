@@ -125,3 +125,61 @@ h1 {
     background: #00ff41;
     color: #000;
 }
+/* =========================================
+   CARROSSEL DE BATALHAS (UM POR VEZ)
+========================================= */
+/* Esconde todos os cards por padrão */
+.card-batalha {
+    display: none; 
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Só mostra o card que tiver a classe 'ativa' */
+.card-batalha.ativa {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Área dos botões Próximo / Anterior */
+.navegacao-batalhas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px;
+    background: #111;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.btn-nav {
+    background: #222;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+
+.btn-nav:hover:not(:disabled) {
+    background: #00ff41;
+    color: #000;
+}
+
+.btn-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+#contador-batalhas {
+    font-weight: bold;
+    color: #888;
+    letter-spacing: 2px;
+}

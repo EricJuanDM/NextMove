@@ -105,7 +105,7 @@
             const temFinal = bats.some(b => b.pool === 'Final');
 
             // --- A. DESENHA O CABEÇALHO ---
-            document.getElementById('header-title').innerText = temQuartas ? 'FASE ELIMINATÓRIA' : 'SWISS BRACKET';
+            document.getElementById('header-title').innerText = temQuartas ? 'FASE ELIMINATÓRIA' : 'Batalha';
             if (temQuartas) document.getElementById('main-header').classList.add('mata-mata');
             if (temQuartas) {
                 document.getElementById('input-nome').disabled = true;

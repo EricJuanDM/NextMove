@@ -7,18 +7,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='votacao.css') }}">
 </head>
 <body>
+
     <div class="top-bar">
         {% if 'usuario' in session or 'usuario_id' in session %}
-            <div class="user-info">
-                <span> Logado</span>
-            </div>
+            <div class="user-info"><span>👤 Logado</span></div>
             <a href="/logout" class="btn-login">Sair</a>
         {% else %}
             <a href="/login" class="btn-login">Fazer Login</a>
         {% endif %}
-        
     </div>
-{% set ns = namespace(acabou=false) %}
+
+    <h1>Faça seus Palpites</h1>
+    <p>Escolha quem você acha que vai vencer as batalhas!</p>
+
+    {% set ns = namespace(acabou=false) %}
     {% for b in batalhas %}
         {% if b[2] == 'Final' and b[3] == 'finalizada' %}
             {% set ns.acabou = true %}
@@ -31,75 +33,96 @@
             <p style="font-size: 1.2rem; font-weight: bold;">Muito obrigado por participar do nosso Pick'em.</p>
             <p>Fique de olho no palco principal para descobrir quem foi o espectador que mais acertou os palpites e levou o prêmio para casa!</p>
         </div>
+    {% else %}
         
-        <style> .batalhas-container { display: none !important; } </style>
-    {% endif %}
-    <h1>Faça seus Palpites</h1>
-    <p>Escolha quem você acha que vai vencer as batalhas!</p>
+        <div class="batalhas-container">
+            {% for b in batalhas %}
+                <div class="card-batalha" id="card-{{ loop.index0 }}">
+                    <div class="card-header">Round {{ b[1] }} | Chave {{ b[2] }}</div>
+                    
+                    <div class="opcoes">
+                        <button id="btn-{{ b[0] }}-{{ b[4] }}" class="btn-voto {% if meus_palpites.get(b[0]) == b[4] %}selecionado{% endif %}" onclick="fazerPalpite({{ b[0] }}, {{ b[4] }})" {% if b[3] == 'finalizada' %}disabled{% endif %}>
+                            {{ b[5] }}
+                        </button>
+                        <span class="vs">VS</span>
+                        <button id="btn-{{ b[0] }}-{{ b[6] }}" class="btn-voto {% if meus_palpites.get(b[0]) == b[6] %}selecionado{% endif %}" onclick="fazerPalpite({{ b[0] }}, {{ b[6] }})" {% if b[3] == 'finalizada' %}disabled{% endif %}>
+                            {{ b[7] }}
+                        </button>
+                    </div>
 
-    <div class="batalhas-container">
-        {% for b in batalhas %}
-            <div class="card-batalha" id="batalha-{{ b[0] }}">
-                <div class="card-header">Round {{ b[1] }} | Chave {{ b[2] }}</div>
-                
-                <div class="opcoes">
-                    <button 
-                        id="btn-{{ b[0] }}-{{ b[4] }}" 
-                        class="btn-voto {% if meus_palpites.get(b[0]) == b[4] %}selecionado{% endif %}"
-                        onclick="fazerPalpite({{ b[0] }}, {{ b[4] }})"
-                        {% if b[3] == 'finalizada' %}disabled{% endif %}
-                    >
-                        {{ b[5] }}
-                    </button>
-
-                    <span class="vs">VS</span>
-
-                    <button 
-                        id="btn-{{ b[0] }}-{{ b[6] }}" 
-                        class="btn-voto {% if meus_palpites.get(b[0]) == b[6] %}selecionado{% endif %}"
-                        onclick="fazerPalpite({{ b[0] }}, {{ b[6] }})"
-                        {% if b[3] == 'finalizada' %}disabled{% endif %}
-                    >
-                        {{ b[7] }}
-                    </button>
+                    <div class="msg-status" id="msg-{{ b[0] }}">
+                        {% if b[3] == 'finalizada' %}
+                            <span style="color: #e63946;">🔒 Batalha Encerrada</span>
+                        {% endif %}
+                    </div>
                 </div>
+            {% else %}
+                <p style="text-align: center; color: #888;">Nenhuma batalha disponível no momento.</p>
+            {% endfor %}
 
-                <div class="msg-status" id="msg-{{ b[0] }}">
-                    {% if b[3] == 'finalizada' %}
-                        <span style="color: #e63946;">🔒 Batalha Encerrada</span>
-                    {% endif %}
-                </div>
+            {% if batalhas|length > 0 %}
+            <div class="navegacao-batalhas">
+                <button id="btn-ant" class="btn-nav" onclick="mudarBatalha(-1)">&#8592; Anterior</button>
+                <span id="contador-batalhas">1 / {{ batalhas|length }}</span>
+                <button id="btn-prox" class="btn-nav" onclick="mudarBatalha(1)">Próxima &#8594;</button>
             </div>
-        {% else %}
-            <p style="text-align: center; color: #888;">Nenhuma batalha disponível no momento.</p>
-        {% endfor %}
-    </div>
+            {% endif %}
+        </div>
+
+    {% endif %}
 
     <script>
+        // --- LÓGICA DO CARROSSEL ---
+        let indiceAtual = 0;
+        const totalBatalhas = {{ batalhas|length }};
+        
+        function atualizarCarrossel() {
+            if (totalBatalhas === 0) return;
+
+            // Esconde todos
+            document.querySelectorAll('.card-batalha').forEach(card => card.classList.remove('ativa'));
+            
+            // Mostra só o atual
+            document.getElementById(`card-${indiceAtual}`).classList.add('ativa');
+
+            // Atualiza botões e texto
+            document.getElementById('btn-ant').disabled = (indiceAtual === 0);
+            document.getElementById('btn-prox').disabled = (indiceAtual === totalBatalhas - 1);
+            document.getElementById('contador-batalhas').innerText = `${indiceAtual + 1} / ${totalBatalhas}`;
+        }
+
+        function mudarBatalha(direcao) {
+            indiceAtual += direcao;
+            if (indiceAtual < 0) indiceAtual = 0;
+            if (indiceAtual >= totalBatalhas) indiceAtual = totalBatalhas - 1;
+            atualizarCarrossel();
+        }
+
+        // Inicia o carrossel na primeira batalha assim que a tela carrega
+        window.onload = atualizarCarrossel;
+
+
+        // --- LÓGICA DE SALVAR O VOTO ---
         function fazerPalpite(batalhaId, competidorId) {
             const msgDiv = document.getElementById(`msg-${batalhaId}`);
             msgDiv.innerText = "Salvando palpite...";
             msgDiv.style.color = "#888";
 
-            // 1. Envia o voto para o Python de forma invisível
-            fetch(`/enviar_palpite/${batalhaId}/${competidorId}`, {
-                method: 'POST'
-            })
+            fetch(`/enviar_palpite/${batalhaId}/${competidorId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'sucesso') {
-                    // 2. Tira a cor verde de todos os botões dessa batalha
-                    document.querySelectorAll(`#batalha-${batalhaId} .btn-voto`).forEach(btn => {
+                    // Limpa as seleções antigas desta batalha específica
+                    document.querySelectorAll(`#card-${indiceAtual} .btn-voto`).forEach(btn => {
                         btn.classList.remove('selecionado');
                     });
 
-                    // 3. Coloca a cor verde apenas no botão que o cara acabou de clicar
+                    // Pinta o botão clicado
                     document.getElementById(`btn-${batalhaId}-${competidorId}`).classList.add('selecionado');
                     
                     msgDiv.innerText = "Palpite salvo! ✓";
                     msgDiv.style.color = "#00ff41";
                 } else {
-                    // Se a batalha já acabou ou o cara não tiver logado
                     msgDiv.innerText = data.mensagem;
                     msgDiv.style.color = "#e63946";
                 }
