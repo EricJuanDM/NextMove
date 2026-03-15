@@ -71,7 +71,7 @@ def gerar_batalhas():
                 INSERT INTO batalhas_suico (round, competidor1_id, competidor2_id, pool) 
                 VALUES (%s, %s, %s, %s)
             ''', (proximo_round, comp1_id, comp2_id, score))
-
+    
     conn.commit()
     conn.close()
     return redirect(url_for('votacao_bp.admin'))
@@ -241,3 +241,13 @@ def ranking_bolao():
     conn.close()
     
     return render_template('ranking.html', ranking=ranking)
+@votacao_bp.route('/verificar_atualizacoes')
+def verificar_atualizacoes():
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    # Conta quantas batalhas existem no total
+    cursor.execute('SELECT COUNT(*) FROM batalhas_suico')
+    total = cursor.fetchone()[0]
+    conn.close()
+    
+    return jsonify({'total_batalhas': total})

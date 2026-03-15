@@ -183,3 +183,120 @@ h1 {
     color: #888;
     letter-spacing: 2px;
 }
+/* =========================================
+   BOTÃO FLUTUANTE DE TEMPO REAL
+========================================= */
+#btn-nova-rodada {
+    display: none; /* Escondido por padrão, o JS que vai mostrar! */
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #00ff41;
+    color: #000;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(0, 255, 65, 0.4);
+    cursor: pointer;
+    z-index: 1000;
+    animation: bounceIn 0.5s;
+}
+
+#btn-nova-rodada:hover {
+    background-color: #00cc33;
+    transform: translateX(-50%) scale(1.05);
+}
+
+@keyframes bounceIn {
+    0% { transform: translate(-50%, 50px); opacity: 0; }
+    100% { transform: translate(-50%, 0); opacity: 1; }
+}
+/* =========================================
+   📱 RESPONSIVIDADE PARA CELULAR (MOBILE FIRST)
+========================================= */
+@media (max-width: 600px) {
+    body {
+        padding: 15px 10px; /* Reduz as bordas laterais para ganhar espaço */
+    }
+
+    /* Arruma a barra superior para não encavalar no título */
+    .top-bar {
+        position: relative; 
+        top: 0;
+        right: 0;
+        justify-content: center; /* Centraliza o login */
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+        text-align: center;
+        margin-top: 0;
+    }
+
+    p {
+        text-align: center;
+        font-size: 0.95rem;
+        margin-bottom: 25px;
+    }
+
+    /* Muda a batalha para um dançarino em cima do outro */
+    .opcoes {
+        flex-direction: column; 
+        gap: 10px;
+    }
+
+    /* Deixa o botão de votar GIGANTE para o dedão não errar */
+    .btn-voto {
+        width: 100%; 
+        padding: 22px; /* Mais alto */
+        font-size: 1.3rem; /* Letra maior */
+        border-radius: 10px; /* Borda mais arredondada, estilo app */
+    }
+
+    /* O "VS" fica no meio dos dois botões */
+    .vs {
+        margin: 5px 0;
+        font-size: 1.2rem;
+        background: #111;
+        padding: 5px 15px;
+        border-radius: 20px;
+        border: 1px solid #333;
+    }
+
+    /* Ajusta os botões de Próxima/Anterior */
+    .navegacao-batalhas {
+        padding: 15px 10px;
+        margin-top: 15px;
+    }
+
+    .btn-nav {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+    }
+
+    /* Ajusta o botão verde voador para caber na tela toda */
+    #btn-nova-rodada {
+        width: 90%;
+        font-size: 0.9rem;
+        padding: 15px;
+        bottom: 20px;
+        text-align: center;
+        border-radius: 30px;
+    }
+    /* Conserta o contador quebrado no meio dos botões */
+    #contador-batalhas {
+        white-space: nowrap; /* O segredo mágico: proíbe a quebra de linha! */
+        margin: 0 10px; /* Dá um respiro nas laterais */
+        font-size: 0.95rem; /* Ajusta o tamanho pra caber perfeito */
+    }
+
+    .navegacao-batalhas {
+        flex-wrap: nowrap; /* Força os 3 elementos a ficarem na mesma linha */
+    }
+}
