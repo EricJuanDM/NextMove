@@ -93,5 +93,5 @@ window.onload = () => {
     atualizarCarrossel();
     
     // 3. Liga o radar de tempo real para rodar a cada 5 segundos
-    setInterval(checarNovaRodada, 5000);
+    setInterval(checarNovaRodada, 20000);
 };
