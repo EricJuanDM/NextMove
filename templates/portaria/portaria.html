@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel da Portaria | Next Move</title>
+    <style>
+        body { background-color: #050505; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
+        .btn-painel { display: block; width: 90%; max-width: 400px; margin: 15px auto; padding: 20px; font-size: 1.2rem; font-weight: bold; text-transform: uppercase; background: #222; color: #fff; text-decoration: none; border: 2px solid #444; border-radius: 10px; }
+        .btn-painel:hover { background: #00ff41; color: #000; border-color: #00ff41; }
+        .btn-venda { background: #ffaa00; color: #000; border-color: #ffaa00; }
+        .btn-venda:hover { background: #e69500; }
+    </style>
+</head>
+<body>
+    <h1>🛡️ Controle de Portaria</h1>
+    <p>Logado como: <strong>{{ nivel|upper }}</strong></p>
+
+    <h3>Fazer Check-in</h3>
+    
+    <a href="{{ url_for('portaria.pagina_checkin', tipo_lista='aula_1') }}" class="btn-painel">
+        AULA 1
+    </a>
+
+    <a href="{{ url_for('portaria.pagina_checkin', tipo_lista='aula_2') }}" class="btn-painel">
+        AULA 2
+    </a>
+
+    <a href="{{ url_for('portaria.pagina_checkin', tipo_lista='evento_geral') }}" class="btn-painel">
+        ENTRADA GERAL (EVENTO)
+    </a>
+
+    <a href="{{ url_for('portaria.pagina_checkin', tipo_lista='batalhas') }}" class="btn-painel">
+        COMPETIDORES (BATALHAS)
+    </a>
+
+    <hr style="border-color: #333; margin: 30px 0;">
+
+    <h3>Bilheteria & Gestão</h3>
+    <a href="{{ url_for('portaria.venda_porta') }}" class="btn-painel btn-venda">💰 Registrar Nova Venda na Porta</a>
+    <a href="{{ url_for('portaria.venda_antecipada') }}" class="btn-painel" style="background: #005bb5; border-color: #005bb5;">📥 Lançar Venda Antecipada</a>
+    
+    <br>
+    <a href="/" style="color: #888;">Voltar ao site principal</a>
+</body>
+</html>

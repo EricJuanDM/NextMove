@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lançar Venda Antecipada | Next Move</title>
+    <style>
+        body { background-color: #050505; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
+        .container { max-width: 400px; margin: 0 auto; background: #111; padding: 30px; border-radius: 10px; border: 1px solid #333; }
+        h2 { color: #00ff41; text-transform: uppercase; margin-top: 0; }
+        input, select { width: 90%; padding: 12px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; font-size: 1rem; }
+        button { background-color: #00ff41; color: #000; border: none; padding: 15px; font-size: 1.1rem; font-weight: bold; border-radius: 5px; cursor: pointer; text-transform: uppercase; width: 100%; transition: 0.3s; }
+        button:hover { background-color: #00cc33; }
+        .msg-sucesso { background: rgba(0, 255, 65, 0.2); color: #00ff41; padding: 15px; border-radius: 5px; border: 1px solid #00ff41; margin-bottom: 20px; font-weight: bold; }
+        .btn-voltar { display: block; margin-top: 20px; color: #888; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📥 Lançar Venda Antecipada</h2>
+        <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 25px;">Registre quem já pagou. Se o e-mail não tiver conta, criaremos uma com a senha <strong>nextmove2026</strong>.</p>
+
+        {% if mensagem_sucesso %}
+            <div class="msg-sucesso">{{ mensagem_sucesso }}</div>
+        {% endif %}
+        
+        {% if erro %}
+            <div style="color: #ffaa00; margin-bottom: 15px;">⚠️ {{ erro }}</div>
+        {% endif %}
+
+        <form action="{{ url_for('portaria.venda_antecipada') }}" method="POST">
+            <input type="text" name="nome_completo" placeholder="Nome Completo do Comprador" required>
+            <input type="email" name="email" placeholder="E-mail Real do Comprador" required>
+            
+            <select name="tipo_ingresso" required>
+                <option value="" disabled selected>Selecione o Ingresso Comprado...</option>
+                <option value="aula_1">Workshop - Aula 1</option>
+                <option value="aula_2">Workshop - Aula 2</option>
+                <option value="pacote_aulas">Pacote Completo (Aulas)</option>
+                <option value="espectador">Entrada Geral (Evento)</option>
+                <option value="competidor">Competidor (Batalhas)</option>
+            </select>
+            
+            <button type="submit">Lançar Ingresso</button>
+        </form>
+
+        <a href="{{ url_for('portaria.painel_portaria') }}" class="btn-voltar">← Voltar para a Portaria</a>
+    </div>
+
+</body>
+</html>

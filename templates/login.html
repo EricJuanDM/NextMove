@@ -46,6 +46,10 @@
             
             <form action="{{ url_for('cadastro') }}" method="POST">
                 <div class="input-group">
+                    <label for="nome_cad">Nome Completo</label>
+                    <input type="text" id="nome_cad" name="nome_completo" placeholder="Seu nome completo" required>
+                </div>
+                <div class="input-group">
                     <label for="email_cad">E-mail</label>
                     <input type="email" id="email_cad" name="email" placeholder="seu-email@gmail.com" required>
                 </div>
@@ -74,5 +78,46 @@
             document.getElementById('box-login').style.display = 'block';
         }
     </script>
+    {% if erro %}
+    <div id="popup-erro" class="popup">
+        <p> {{ erro }}</p>
+        <span class="close-btn" onclick="fecharPopup()">&times;</span>
+    </div>
+
+    <style>
+        .popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #e63946; /* Vermelho de erro */
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(230, 57, 70, 0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: bold;
+            animation: slideDown 0.4s ease-out;
+        }
+        .popup p { margin: 0; }
+        .close-btn { cursor: pointer; font-size: 1.5rem; line-height: 1; }
+        .close-btn:hover { color: #ccc; }
+        
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+    </style>
+
+    <script>
+        function fecharPopup() {
+            document.getElementById('popup-erro').style.display = 'none';
+        }
+        setTimeout(fecharPopup, 5000);
+    </script>
+    {% endif %}
 </body>
 </html>
