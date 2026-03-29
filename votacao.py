@@ -64,14 +64,50 @@ def gerar_bracket_8():
     conn = psycopg2.connect(URL_BANCO)
     cursor = conn.cursor()
 
-    cursor.execute('SELECT id FROM competidores')
-    ativos = [row[0] for row in cursor.fetchall()]
+    # Agora puxamos o ID e o NOME para o Python poder separar os cabeças de chave
+    cursor.execute('SELECT id, nome FROM competidores')
+    todos_competidores = cursor.fetchall()
 
-    if len(ativos) != 8:
+    if len(todos_competidores) != 8:
         conn.close()
         return "Erro: Você precisa de EXATAMENTE 8 competidores cadastrados para gerar esta chave.", 400
 
-    random.shuffle(ativos)
+    # 1. A LISTA VIP: O Python vai procurar quem tem esses nomes
+    nomes_vips = ['igor', 'felipe vermelho', 'emily vaz', 'marco antonio']
+    
+    cabecas_de_chave = []
+    outros_competidores = []
+
+    # 2. SEPARANDO A GALERA
+    for comp in todos_competidores:
+        comp_id = comp[0]
+        comp_nome = comp[1].lower().strip() # Deixa tudo minúsculo para facilitar a busca
+        
+        # Checa se o nome digitado tem algum dos nomes VIPs no meio
+        is_vip = any(vip in comp_nome for vip in nomes_vips)
+        
+        if is_vip:
+            cabecas_de_chave.append(comp_id)
+        else:
+            outros_competidores.append(comp_id)
+
+    # 3. O SORTEIO INTELIGENTE
+    # Trava de segurança: Se você digitou o nome de alguém diferente e não achou os 4 exatos, ele sorteia 100% aleatório para não travar o evento
+    if len(cabecas_de_chave) != 4 or len(outros_competidores) != 4:
+        ativos = [c[0] for c in todos_competidores]
+        random.shuffle(ativos)
+    else:
+        # Embaralha os VIPs entre si, e os Outros entre si
+        random.shuffle(cabecas_de_chave)
+        random.shuffle(outros_competidores)
+        
+        # Monta a lista final colocando: [VIP, Outro, VIP, Outro, VIP, Outro, VIP, Outro]
+        ativos = [
+            cabecas_de_chave[0], outros_competidores[0], # Luta W1
+            cabecas_de_chave[1], outros_competidores[1], # Luta W2
+            cabecas_de_chave[2], outros_competidores[2], # Luta W3
+            cabecas_de_chave[3], outros_competidores[3]  # Luta W4
+        ]
 
     # Cria todas as 14 batalhas da chave
     pools_iniciais = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'GF1']
