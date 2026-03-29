@@ -2,68 +2,170 @@ import random
 import psycopg2
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
 
-# Criando o módulo do Torneio
 votacao_bp = Blueprint('votacao_bp', __name__)
-
 URL_BANCO = 'postgresql://neondb_owner:npg_F4Lr8SMQBqYy@ep-snowy-fog-ad66vpfz-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 
+# ==========================================
+# O MOTOR DA DUPLA ELIMINAÇÃO (STATE MACHINE)
+# ==========================================
+# 'c1' significa que entra na vaga 1 da próxima batalha. 'c2' na vaga 2.
+REGRAS_AVANCO = {
+    'W1': {'win': ('W5', 'c1'), 'lose': ('L1', 'c1')},
+    'W2': {'win': ('W5', 'c2'), 'lose': ('L1', 'c2')},
+    'W3': {'win': ('W6', 'c1'), 'lose': ('L2', 'c1')},
+    'W4': {'win': ('W6', 'c2'), 'lose': ('L2', 'c2')},
+    'W5': {'win': ('W7', 'c1'), 'lose': ('L4', 'c1')}, # Cruzamento: Perdedor da chave de cima vai pra de baixo invertido
+    'W6': {'win': ('W7', 'c2'), 'lose': ('L3', 'c1')}, # Cruzamento
+    'L1': {'win': ('L3', 'c2'), 'lose': None},
+    'L2': {'win': ('L4', 'c2'), 'lose': None},
+    'L3': {'win': ('L5', 'c1'), 'lose': None},
+    'L4': {'win': ('L5', 'c2'), 'lose': None},
+    'L5': {'win': ('L6', 'c1'), 'lose': None},
+    'W7': {'win': ('GF1', 'c1'), 'lose': ('L6', 'c2')}, # Final dos Vencedores
+    'L6': {'win': ('GF1', 'c2'), 'lose': None},         # Final da Repescagem
+    'GF1': {'win': 'FIM', 'lose': 'RESET'}              # Grande Final
+}
 
 # ==========================================
-# 1. ROTAS DO PÚBLICO (BOLÃO / PALPITES)
+# ROTAS DO PAINEL ADMIN
 # ==========================================
 
-@votacao_bp.route('/batalhas')
-def pagina_batalhas():
-    # 🔒 TRAVA DE SEGURANÇA: Só quem fez login entra aqui!
-    usuario_logado_id = session.get('usuario_id') 
-    if not usuario_logado_id:
-        return redirect('/login')
+@votacao_bp.route('/admin', methods=['GET', 'POST'])
+def admin():
+    nivel = session.get('nivel_acesso')
+    if not nivel or nivel.lower() not in ['admin', 'superadmin']: return redirect('/')
 
     conn = psycopg2.connect(URL_BANCO)
     cursor = conn.cursor()
 
+    if request.method == 'POST':
+        nome = request.form['nome']
+        cursor.execute('INSERT INTO competidores (nome) VALUES (%s)', (nome,))
+        conn.commit()
+        
+    cursor.execute('SELECT * FROM competidores ORDER BY id ASC')
+    competidores = cursor.fetchall()
+
     cursor.execute('''
-        SELECT b.id, b.round, b.pool, b.status,
+        SELECT b.id, b.pool, b.status, b.vencedor_id,
                c1.id, c1.nome, c2.id, c2.nome
         FROM batalhas_suico b
-        JOIN competidores c1 ON b.competidor1_id = c1.id
-        JOIN competidores c2 ON b.competidor2_id = c2.id
-        ORDER BY b.round ASC, b.id ASC
+        LEFT JOIN competidores c1 ON b.competidor1_id = c1.id
+        LEFT JOIN competidores c2 ON b.competidor2_id = c2.id
+        ORDER BY b.id ASC
     ''')
     batalhas = cursor.fetchall()
-
-    meus_palpites = {}
-    if usuario_logado_id:
-        cursor.execute('SELECT batalha_id, palpite_vencedor_id FROM palpites WHERE usuario_id = %s', (usuario_logado_id,))
-        votos_db = cursor.fetchall()
-        meus_palpites = {voto[0]: voto[1] for voto in votos_db}
-
     conn.close()
     
-    # IMPORTANTE: Verifique se o seu arquivo HTML se chama votacao.html ou batalhas.html e ajuste aqui se precisar!
-    return render_template('votacao.html', batalhas=batalhas, meus_palpites=meus_palpites)
+    return render_template('admin.html', competidores=competidores, batalhas=batalhas)
 
-
-@votacao_bp.route('/ranking_bolao')
-def ranking_bolao():
+@votacao_bp.route('/gerar_bracket_8', methods=['POST'])
+def gerar_bracket_8():
     conn = psycopg2.connect(URL_BANCO)
     cursor = conn.cursor()
+
+    cursor.execute('SELECT id FROM competidores')
+    ativos = [row[0] for row in cursor.fetchall()]
+
+    if len(ativos) != 8:
+        conn.close()
+        return "Erro: Você precisa de EXATAMENTE 8 competidores cadastrados para gerar esta chave.", 400
+
+    random.shuffle(ativos)
+
+    # Cria todas as 14 batalhas da chave
+    pools_iniciais = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'GF1']
     
-    # 👤 MUDANÇA AQUI: Trocamos u.email por u.nome_completo no SELECT e no GROUP BY
-    cursor.execute('''
-        SELECT COALESCE(u.nome_completo, 'Dançarino Sem Nome'), COUNT(p.id) as acertos
-        FROM usuarios u
-        JOIN palpites p ON u.id = p.usuario_id
-        JOIN batalhas_suico b ON p.batalha_id = b.id
-        WHERE b.status = 'finalizada' AND p.palpite_vencedor_id = b.vencedor_id
-        GROUP BY u.nome_completo
-        ORDER BY acertos DESC
-    ''')
-    ranking = cursor.fetchall()
+    for pool in pools_iniciais:
+        if pool == 'W1': cursor.execute('INSERT INTO batalhas_suico (pool, competidor1_id, competidor2_id, round) VALUES (%s, %s, %s, 1)', (pool, ativos[0], ativos[1]))
+        elif pool == 'W2': cursor.execute('INSERT INTO batalhas_suico (pool, competidor1_id, competidor2_id, round) VALUES (%s, %s, %s, 1)', (pool, ativos[2], ativos[3]))
+        elif pool == 'W3': cursor.execute('INSERT INTO batalhas_suico (pool, competidor1_id, competidor2_id, round) VALUES (%s, %s, %s, 1)', (pool, ativos[4], ativos[5]))
+        elif pool == 'W4': cursor.execute('INSERT INTO batalhas_suico (pool, competidor1_id, competidor2_id, round) VALUES (%s, %s, %s, 1)', (pool, ativos[6], ativos[7]))
+        else: cursor.execute('INSERT INTO batalhas_suico (pool, round) VALUES (%s, 1)', (pool,))
+    
+    conn.commit()
+    conn.close()
+    return redirect(url_for('votacao_bp.admin'))
+
+@votacao_bp.route('/vitoria/<int:batalha_id>/<int:vencedor_id>', methods=['POST'])
+def registrar_vitoria(batalha_id, vencedor_id):
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT pool, competidor1_id, competidor2_id FROM batalhas_suico WHERE id = %s", (batalha_id,))
+    pool, c1, c2 = cursor.fetchone()
+    perdedor_id = c2 if vencedor_id == c1 else c1
+
+    # Atualiza a batalha atual como finalizada
+    cursor.execute("UPDATE batalhas_suico SET vencedor_id = %s, status = 'finalizada' WHERE id = %s", (vencedor_id, batalha_id))
+
+    regras = REGRAS_AVANCO.get(pool)
+    if regras:
+        # Lógica do Vencedor
+        if regras['win'] not in ['FIM', 'RESET']:
+            prox_pool_win, vaga_win = regras['win']
+            coluna_win = 'competidor1_id' if vaga_win == 'c1' else 'competidor2_id'
+            cursor.execute(f"UPDATE batalhas_suico SET {coluna_win} = %s WHERE pool = %s", (vencedor_id, prox_pool_win))
+        
+        # Lógica do Perdedor
+        if regras['lose'] not in [None, 'CHECK_RESET', 'RESET']:
+            prox_pool_lose, vaga_lose = regras['lose']
+            coluna_lose = 'competidor1_id' if vaga_lose == 'c1' else 'competidor2_id'
+            cursor.execute(f"UPDATE batalhas_suico SET {coluna_lose} = %s WHERE pool = %s", (perdedor_id, prox_pool_lose))
+
+        # A Regra Mágica do Reset na Grande Final!
+        if pool == 'GF1':
+            if vencedor_id == c2:
+                cursor.execute('INSERT INTO batalhas_suico (pool, competidor1_id, competidor2_id, round) VALUES (%s, %s, %s, 2)', ('GF2', c1, c2))
+
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'sucesso'})
+
+@votacao_bp.route('/deletar_competidor/<int:id>')
+def deletar_competidor(id):
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM competidores WHERE id = %s', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('votacao_bp.admin'))
+
+@votacao_bp.route('/resetar_torneio', methods=['POST'])
+def resetar_torneio():
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM palpites') 
+    cursor.execute('DELETE FROM batalhas_suico')
+    cursor.execute('DELETE FROM competidores')
+    conn.commit()
+    conn.close()
+    return redirect(url_for('votacao_bp.admin'))
+
+# ==========================================
+# ROTAS PÚBLICAS (VISÃO DA GALERA E BOLÃO)
+# ==========================================
+
+@votacao_bp.route('/votacao')
+def pagina_batalhas():
+    usuario_logado_id = session.get('usuario_id') 
+    if not usuario_logado_id: return redirect('/login')
+
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    cursor.execute('''SELECT b.id, b.pool, b.status, b.vencedor_id, c1.id, c1.nome, c2.id, c2.nome 
+                      FROM batalhas_suico b 
+                      LEFT JOIN competidores c1 ON b.competidor1_id = c1.id 
+                      LEFT JOIN competidores c2 ON b.competidor2_id = c2.id 
+                      ORDER BY b.id ASC''')
+    batalhas = cursor.fetchall()
+    
+    cursor.execute('SELECT batalha_id, palpite_vencedor_id FROM palpites WHERE usuario_id = %s', (usuario_logado_id,))
+    meus_palpites = {voto[0]: voto[1] for voto in cursor.fetchall()}
     conn.close()
     
-    return render_template('ranking.html', ranking=ranking)
-
+    # Aqui renderizamos o HTML que fizemos na mensagem anterior!
+    return render_template('votacao.html', batalhas=batalhas, meus_palpites=meus_palpites)
 
 @votacao_bp.route('/enviar_palpite/<int:batalha_id>/<int:competidor_id>', methods=['POST'])
 def enviar_palpite(batalha_id, competidor_id):
@@ -95,175 +197,21 @@ def enviar_palpite(batalha_id, competidor_id):
     finally:
         conn.close()
 
-@votacao_bp.route('/verificar_atualizacoes')
-def verificar_atualizacoes():
+@votacao_bp.route('/ranking_bolao')
+def ranking_bolao():
     conn = psycopg2.connect(URL_BANCO)
     cursor = conn.cursor()
-    cursor.execute('SELECT COUNT(*) FROM batalhas_suico')
-    total = cursor.fetchone()[0]
-    conn.close()
-    return jsonify({'total_batalhas': total})
-
-
-# ==========================================
-# 2. ROTAS DO PAINEL ADMIN (GERENCIAMENTO)
-# ==========================================
-
-@votacao_bp.route('/admin', methods=['GET', 'POST'])
-def admin():
-    # 🔒 TRAVA DE SEGURANÇA: Só admin entra no painel de gerenciar as chaves!
-    nivel = session.get('nivel_acesso')
-    if not nivel or nivel.lower() not in ['admin', 'superadmin']:
-        return redirect('/')
-
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-
-    if request.method == 'POST':
-        nome_dancarino = request.form['nome']
-        cursor.execute('INSERT INTO competidores (nome) VALUES (%s)', (nome_dancarino,))
-        conn.commit()
-        
-    cursor.execute('SELECT * FROM competidores ORDER BY vitorias DESC, derrotas ASC')
-    competidores = cursor.fetchall()
-
+    
     cursor.execute('''
-        SELECT b.id, b.round, 
-               c1.id, c1.nome, c1.vitorias, c1.derrotas,
-               c2.id, c2.nome, c2.vitorias, c2.derrotas,
-               b.vencedor_id, b.status, b.pool
-        FROM batalhas_suico b
-        JOIN competidores c1 ON b.competidor1_id = c1.id
-        JOIN competidores c2 ON b.competidor2_id = c2.id
-        ORDER BY b.round ASC, b.id ASC
+        SELECT COALESCE(u.nome_completo, 'Dançarino Sem Nome'), COUNT(p.id) as acertos
+        FROM usuarios u
+        JOIN palpites p ON u.id = p.usuario_id
+        JOIN batalhas_suico b ON p.batalha_id = b.id
+        WHERE b.status = 'finalizada' AND p.palpite_vencedor_id = b.vencedor_id
+        GROUP BY u.nome_completo
+        ORDER BY acertos DESC
     ''')
-    batalhas = cursor.fetchall()
+    ranking = cursor.fetchall()
     conn.close()
     
-    return render_template('admin.html', competidores=competidores, batalhas=batalhas)
-
-
-@votacao_bp.route('/gerar_batalhas_admin', methods=['POST'])
-def gerar_batalhas_admin():
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-
-    cursor.execute('SELECT COALESCE(MAX(round), 0) + 1 FROM batalhas_suico')
-    proximo_round = cursor.fetchone()[0]
-
-    cursor.execute('SELECT id, vitorias, derrotas FROM competidores WHERE vitorias < 3 AND derrotas < 3')
-    ativos = cursor.fetchall()
-
-    if not ativos:
-        conn.close()
-        return redirect(url_for('votacao_bp.admin')) 
-
-    grupos = {}
-    for comp in ativos:
-        score = f"{comp[1]}-{comp[2]}" 
-        if score not in grupos: grupos[score] = []
-        grupos[score].append(comp[0])
-
-    for score, lista in grupos.items():
-        random.shuffle(lista) 
-        for i in range(0, len(lista) - 1, 2):
-            comp1_id = lista[i]
-            comp2_id = lista[i+1]
-
-            cursor.execute('''
-                INSERT INTO batalhas_suico (round, competidor1_id, competidor2_id, pool) 
-                VALUES (%s, %s, %s, %s)
-            ''', (proximo_round, comp1_id, comp2_id, score))
-    
-    conn.commit()
-    conn.close()
-    return redirect(url_for('votacao_bp.admin'))
-
-
-@votacao_bp.route('/gerar_mata_mata', methods=['POST'])
-def gerar_mata_mata():
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT DISTINCT pool FROM batalhas_suico WHERE pool IN ('Quartas', 'Semi', 'Final')")
-    pools = [row[0] for row in cursor.fetchall()]
-
-    if 'Quartas' not in pools:
-        cursor.execute("SELECT id FROM competidores WHERE vitorias >= 3 LIMIT 8")
-        classificados = [row[0] for row in cursor.fetchall()]
-        
-        if len(classificados) == 8:
-            random.shuffle(classificados) 
-            for i in range(0, 8, 2):
-                cursor.execute('''INSERT INTO batalhas_suico (round, competidor1_id, competidor2_id, pool) 
-                                  VALUES (6, %s, %s, 'Quartas')''', (classificados[i], classificados[i+1]))
-    
-    elif 'Semi' not in pools:
-        cursor.execute("SELECT vencedor_id FROM batalhas_suico WHERE pool = 'Quartas' AND status = 'finalizada'")
-        vencedores = [row[0] for row in cursor.fetchall()]
-        
-        if len(vencedores) == 4:
-            for i in range(0, 4, 2):
-                cursor.execute('''INSERT INTO batalhas_suico (round, competidor1_id, competidor2_id, pool) 
-                                  VALUES (7, %s, %s, 'Semi')''', (vencedores[i], vencedores[i+1]))
-    
-    elif 'Final' not in pools:
-        cursor.execute("SELECT vencedor_id FROM batalhas_suico WHERE pool = 'Semi' AND status = 'finalizada'")
-        vencedores = [row[0] for row in cursor.fetchall()]
-        
-        if len(vencedores) == 2:
-            cursor.execute('''INSERT INTO batalhas_suico (round, competidor1_id, competidor2_id, pool) 
-                              VALUES (8, %s, %s, 'Final')''', (vencedores[0], vencedores[1]))
-
-    conn.commit()
-    conn.close()
-    return redirect(url_for('votacao_bp.admin'))
-
-
-@votacao_bp.route('/vitoria/<int:batalha_id>/<int:vencedor_id>', methods=['POST'])
-def registrar_vitoria(batalha_id, vencedor_id):
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT competidor1_id, competidor2_id FROM batalhas_suico WHERE id = %s", (batalha_id,))
-    c1, c2 = cursor.fetchone()
-    perdedor_id = c2 if vencedor_id == c1 else c1
-
-    cursor.execute("UPDATE batalhas_suico SET vencedor_id = %s, status = 'finalizada' WHERE id = %s", (vencedor_id, batalha_id))
-    cursor.execute("UPDATE competidores SET pontos = pontos + 3, vitorias = vitorias + 1 WHERE id = %s", (vencedor_id,))
-    cursor.execute("UPDATE competidores SET derrotas = derrotas + 1 WHERE id = %s", (perdedor_id,))
-
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'status': 'sucesso'})
-
-
-@votacao_bp.route('/deletar_competidor/<int:id>')
-def deletar_competidor(id):
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-    try:
-        cursor.execute('DELETE FROM competidores WHERE id = %s', (id,))
-        conn.commit()
-    except:
-        conn.rollback()
-    
-    conn.close()
-    return redirect(url_for('votacao_bp.admin'))
-
-
-@votacao_bp.route('/resetar_torneio', methods=['POST'])
-def resetar_torneio():
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-    
-    cursor.execute('DELETE FROM palpites') 
-    cursor.execute('DELETE FROM batalhas_suico')
-    cursor.execute('DELETE FROM competidores')
-    cursor.execute('ALTER SEQUENCE batalhas_suico_id_seq RESTART WITH 1')
-    cursor.execute('ALTER SEQUENCE competidores_id_seq RESTART WITH 1')
-
-    conn.commit()
-    conn.close()
-    return redirect(url_for('votacao_bp.admin'))
+    return render_template('ranking.html', ranking=ranking)

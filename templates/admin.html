@@ -3,205 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Evento | Next Move</title>
+    <title>Painel do Evento | Double Elim</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
     <style>
-        /* Animações CSS para o botão brilhar quando o Round acabar */
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 5px #00ff41; transform: scale(1); }
-            50% { box-shadow: 0 0 20px #00ff41; transform: scale(1.05); }
-            100% { box-shadow: 0 0 5px #00ff41; transform: scale(1); }
-        }
-        @keyframes pulse-glow-gold {
-            0% { box-shadow: 0 0 5px #ffaa00; transform: scale(1); }
-            50% { box-shadow: 0 0 20px #ffaa00; transform: scale(1.05); }
-            100% { box-shadow: 0 0 5px #ffaa00; transform: scale(1); }
-        }
-        .btn-glow { animation: pulse-glow 1.5s infinite; background: #00ff41 !important; color: #000 !important; font-weight: 900; }
-        .btn-glow-gold { animation: pulse-glow-gold 1.5s infinite; background: #ffaa00 !important; color: #000 !important; font-weight: 900; }
+        body { background-color: #050505; color: #fff; font-family: sans-serif; padding: 20px; }
+        .header { margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-green { background: #00ff41; color: #000; }
+        .btn-gold { background: #ffaa00; color: #000; }
+        .btn-red { background: #e63946; color: #fff; }
+        
+        .bracket-section { background: #111; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 5px solid; }
+        .winners-bracket { border-color: #00ff41; }
+        .losers-bracket { border-color: #e63946; }
+        .grand-final { border-color: #ffaa00; background: #221800; }
+        
+        .pool-group { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+        .match-box { background: #222; border: 1px solid #444; padding: 15px; border-radius: 5px; width: 250px; }
+        .match-box h4 { margin: 0 0 10px 0; color: #aaa; font-size: 0.9rem; text-transform: uppercase; }
+        
+        .player { padding: 5px; background: #050505; margin-bottom: 5px; border-radius: 3px; border-left: 3px solid #555; }
+        .player.tbd { color: #555; font-style: italic; }
+        .player.winner { border-color: #00ff41; font-weight: bold; }
+        
+        .btn-win { background: #333; color: #fff; border: 1px solid #555; padding: 5px; cursor: pointer; border-radius: 3px; width: 100%; margin-top: 5px; transition: 0.2s; }
+        .btn-win:hover { background: #00ff41; color: #000; }
     </style>
 </head>
 <body>
-
-    <div class="header" id="main-header">
-        <h1 id="header-title">CARREGANDO...</h1>
+    <div class="header">
+        <h1 style="color: #00ff41;">GERENCIADOR - TOP 8 (DOUBLE ELIMINATION)</h1>
     </div>
 
-    <div class="controls">
-        <div style="display: flex; gap: 20px; align-items: center;">
-            <form method="POST" class="form-row">
-                <input type="text" name="nome" id="input-nome" placeholder="Nome do Dançarino" required>
-                <button type="submit" class="btn btn-green" id="btn-add">+ Adicionar</button>
-            </form>
-            
-            <div id="dynamic-controls"></div>
+    <div class="controls" style="margin-bottom: 20px;">
+        <form method="POST" style="display: inline-block;">
+            <input type="text" name="nome" placeholder="Nome do Dançarino" required style="padding: 8px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff;">
+            <button type="submit" class="btn btn-green">+ Add</button>
+        </form>
+        
+        <form action="/gerar_bracket_8" method="POST" style="display: inline-block; margin-left: 20px;">
+            <button type="submit" class="btn btn-gold">⚔️ GERAR CHAVE DE 8</button>
+        </form>
 
-            <form action="/resetar_torneio" method="POST" onsubmit="return confirm('ATENÇÃO: Isso apaga tudo. Continuar?');">
-                <button type="submit" class="btn btn-red">Resetar Torneio</button>
-            </form>
+        <form action="/resetar_torneio" method="POST" style="display: inline-block; float: right;" onsubmit="return confirm('APAGAR TUDO? ISSO NÃO PODE SER DESFEITO.');">
+            <button type="submit" class="btn btn-red">Resetar Torneio</button>
+        </form>
+    </div>
+
+    <div style="background: #111; padding: 15px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #333;">
+        <h3 style="margin-top: 0; color: #aaa; font-size: 1rem;">Dançarinos Cadastrados ({{ competidores|length }}/8)</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            {% for c in competidores %}
+                <div style="background: #222; padding: 5px 10px; border-radius: 5px; border-left: 3px solid #00ff41; display: flex; align-items: center; gap: 10px; font-weight: bold;">
+                    {{ c[1] }}
+                    <a href="/deletar_competidor/{{ c[0] }}" style="color: #e63946; text-decoration: none; font-size: 1.2rem; line-height: 1;" title="Remover Dançarino">×</a>
+                </div>
+            {% else %}
+                <span style="color: #555; font-style: italic;">Nenhum dançarino cadastrado ainda. Adicione 8 para gerar a chave!</span>
+            {% endfor %}
         </div>
     </div>
 
-    <div class="status-zones" id="status-zones"></div>
-    <div class="bracket-container" id="bracket-container"></div>
+    <div class="bracket-section winners-bracket">
+        <h2 style="color: #00ff41; margin-top: 0;">🏆 CHAVE DOS VENCEDORES (WINNERS)</h2>
+        <div class="pool-group" id="winners-container"></div>
+    </div>
 
+    <div class="bracket-section losers-bracket">
+        <h2 style="color: #e63946; margin-top: 0;">🔥 CHAVE DE REPESCAGEM (LOSERS)</h2>
+        <div class="pool-group" id="losers-container"></div>
+    </div>
+
+    <div class="bracket-section grand-final">
+        <h2 style="color: #ffaa00; margin-top: 0;">👑 GRANDE FINAL</h2>
+        <div class="pool-group" id="final-container"></div>
+    </div>
 
     <script>
-        const rawComps = {{ competidores | tojson | safe }};
-        const rawBats = {{ batalhas | tojson | safe }};
-
-        // 2. Mapeamos os Arrays para Objetos JS (Fica muito mais fácil de ler)
-        const comps = rawComps.map(c => ({
-            id: c[0], nome: c[1], v: c[3], d: c[4]
-        }));
-
-        const bats = rawBats.map(b => ({
-            id: b[0], round: b[1],
-            c1_id: b[2], c1_nome: b[3],
-            c2_id: b[6], c2_nome: b[7],
-            vencedor_id: b[10], status: b[11], pool: b[12]
-        }));
-
-        // Controle para a animação do botão
-        let batalhasPendentes = bats.filter(b => b.status === 'pendente').length;
-
-        // 3. Função que constrói as caixas de batalha dinamicamente
-        function renderPool(poolName) {
-            const matches = bats.filter(b => b.pool === poolName);
-            if (matches.length === 0) return ''; // Se não tem batalha na caixa, nem desenha
+        // Puxa as batalhas do Python para o Javascript
+        const bats = {{ batalhas | tojson | safe }};
+        
+        function drawMatch(b) {
+            // b = [id, pool, status, vencedor_id, c1_id, c1_nome, c2_id, c2_nome]
+            let c1 = b[5] ? b[5] : 'Aguardando...';
+            let c2 = b[7] ? b[7] : 'Aguardando...';
+            let classC1 = b[4] ? 'player' : 'player tbd';
+            let classC2 = b[6] ? 'player' : 'player tbd';
             
-            let html = `<div class="pool-box"><div class="pool-header">${poolName}</div>`;
+            // Destaca o vencedor de verde se a batalha acabou
+            if (b[2] === 'finalizada') {
+                if (b[3] === b[4]) classC1 += ' winner';
+                if (b[3] === b[6]) classC2 += ' winner';
+            }
+
+            let html = `
+            <div class="match-box" id="bat-${b[0]}">
+                <h4>Luta: ${b[1]}</h4>
+                <div class="${classC1}">${c1}</div>
+                <div class="${classC2}">${c2}</div>
+            `;
             
-            matches.forEach(b => {
-                const w1 = (b.status === 'finalizada' && b.vencedor_id === b.c1_id) ? 'winner' : (b.status === 'finalizada' ? 'loser' : '');
-                const w2 = (b.status === 'finalizada' && b.vencedor_id === b.c2_id) ? 'winner' : (b.status === 'finalizada' ? 'loser' : '');
-                
+            // Só mostra os botões se a luta não acabou E se já tem os dois lutadores definidos
+            if (b[2] !== 'finalizada' && b[4] && b[6]) {
                 html += `
-                <div class="match">
-                    <div class="competitors">
-                        <div class="player ${w1}">${b.c1_nome}</div>
-                        <div class="vs">VS</div>
-                        <div class="player ${w2}" style="text-align: right;">${b.c2_nome}</div>
-                    </div>
-                    ${b.status === 'pendente' ? `
-                    <div class="actions" id="batalha-${b.id}">
-                        <button type="button" onclick="registrarVoto(${b.id}, ${b.c1_id})" class="btn-win">Venceu</button>
-                        <button type="button" onclick="registrarVoto(${b.id}, ${b.c2_id})" class="btn-win">Venceu</button>
-                    </div>
-                    ` : `<div class="status-done">FINALIZADO</div>`}
+                <div style="display:flex; gap:5px; margin-top:10px;">
+                    <button class="btn-win" onclick="votar(${b[0]}, ${b[4]})">⇧ Venceu</button>
+                    <button class="btn-win" onclick="votar(${b[0]}, ${b[6]})">⇩ Venceu</button>
                 </div>`;
-            });
+            } else if (b[2] === 'finalizada') {
+                html += `<div style="margin-top:10px; color:#00ff41; font-size:0.8rem; text-align:center; font-weight:bold;">✅ FINALIZADA</div>`;
+            }
             return html + `</div>`;
         }
 
-        // 4. MOTOR PRINCIPAL: Avalia o cenário e desenha a interface na hora
-        function renderApp() {
-            const classificados = comps.filter(c => c.v >= 3);
-            const eliminados = comps.filter(c => c.d >= 3);
-            const jogando = comps.filter(c => c.v < 3 && c.d < 3);
+        // Separa as caixas por grupo (W, L ou GF)
+        let wHtml = '', lHtml = '', fHtml = '';
+        bats.forEach(b => {
+            if (b[1].startsWith('W')) wHtml += drawMatch(b);
+            else if (b[1].startsWith('L')) lHtml += drawMatch(b);
+            else if (b[1].startsWith('GF')) fHtml += drawMatch(b);
+        });
 
-            const temQuartas = bats.some(b => b.pool === 'Quartas');
-            const temSemi = bats.some(b => b.pool === 'Semi');
-            const temFinal = bats.some(b => b.pool === 'Final');
+        // Joga as caixas desenhadas na tela
+        if(wHtml) document.getElementById('winners-container').innerHTML = wHtml;
+        if(lHtml) document.getElementById('losers-container').innerHTML = lHtml;
+        if(fHtml) document.getElementById('final-container').innerHTML = fHtml;
 
-            // --- A. DESENHA O CABEÇALHO ---
-            document.getElementById('header-title').innerText = temQuartas ? 'FASE ELIMINATÓRIA' : 'Batalha';
-            if (temQuartas) document.getElementById('main-header').classList.add('mata-mata');
-            if (temQuartas) {
-                document.getElementById('input-nome').disabled = true;
-                document.getElementById('btn-add').disabled = true;
-            }
-
-            // --- B. DESENHA OS BOTÕES DE GERAR ---
-            const controlsDiv = document.getElementById('dynamic-controls');
-            if (classificados.length === 8) {
-                if (!temQuartas) controlsDiv.innerHTML = `<form action="/gerar_mata_mata" method="POST"><button type="submit" class="btn btn-gold" id="btn-gerar">🏆 Gerar Quartas de Final</button></form>`;
-                else if (!temSemi) controlsDiv.innerHTML = `<form action="/gerar_mata_mata" method="POST"><button type="submit" class="btn btn-gold" id="btn-gerar">🏆 Gerar Semifinais</button></form>`;
-                else if (!temFinal) controlsDiv.innerHTML = `<form action="/gerar_mata_mata" method="POST"><button type="submit" class="btn btn-gold" id="btn-gerar">🏆 Gerar Final</button></form>`;
-                else controlsDiv.innerHTML = `<a href="/ranking_bolao" class="btn btn-gold" style="text-decoration: none; display: inline-block;">🏆 VER RANKING DO BOLÃO</a>`;
-            } else {
-                controlsDiv.innerHTML = `<form action="/gerar_batalhas_admin" method="POST"><button type="submit" class="btn" style="background: #fff; color: #000;" id="btn-gerar">⚙️ Gerar Próximo Round</button></form>`;
-            }
-
-            // --- C. DESENHA AS ZONAS DE STATUS (SÓ NO SUÍÇO) ---
-            const zonesDiv = document.getElementById('status-zones');
-            if (!temQuartas) {
-                zonesDiv.innerHTML = `
-                <div class="zone zone-advanced"><h3>Top 8 (Avançam)</h3><div class="tag-container">
-                    ${classificados.map(c => `<div class="player-tag tag-adv">${c.nome} (${c.v}V-${c.d}D)</div>`).join('')}
-                </div></div>
-                <div class="zone" style="border-color: #555;"><h3 style="color: #fff;">Jogando</h3><div class="tag-container">
-                    ${jogando.map(c => `<div class="player-tag tag-active">${c.nome} (${c.v}V-${c.d}D) <a href="/deletar_competidor/${c.id}" class="btn-delete">×</a></div>`).join('')}
-                </div></div>
-                <div class="zone zone-eliminated"><h3>Eliminados</h3><div class="tag-container">
-                    ${eliminados.map(c => `<div class="player-tag tag-elim">${c.nome} (${c.v}V-${c.d}D)</div>`).join('')}
-                </div></div>`;
-            } else {
-                zonesDiv.style.display = 'none';
-            }
-
-            // --- D. DESENHA O CHAVEAMENTO ---
-            const bracketDiv = document.getElementById('bracket-container');
-            if (temQuartas) {
-                bracketDiv.classList.add('playoffs');
-                let html = '';
-                if(renderPool('Quartas')) html += `<div class="round-col"><div class="round-title">Quartas de Final</div>${renderPool('Quartas')}</div>`;
-                if(renderPool('Semi')) html += `<div class="round-col"><div class="round-title">Semifinais</div>${renderPool('Semi')}</div>`;
-                if(renderPool('Final')) html += `<div class="round-col"><div class="round-title">Grande Final</div>${renderPool('Final')}</div>`;
-                
-                // Lógica da Coroa do Campeão
-                const finalMatch = bats.find(b => b.pool === 'Final');
-                if (finalMatch && finalMatch.status === 'finalizada') {
-                    const campeao = finalMatch.vencedor_id === finalMatch.c1_id ? finalMatch.c1_nome : finalMatch.c2_nome;
-                    html += `<div class="round-col" style="justify-content: center;">
-                        <div class="round-title" style="color: #ffaa00; border-bottom: none; font-size: 1.5rem;">👑 CAMPEÃO 👑</div>
-                        <div style="background: #ffaa00; color: #000; padding: 30px; border-radius: 8px; font-weight: 900; font-size: 2rem; text-align: center; text-transform: uppercase; box-shadow: 0 0 40px rgba(255, 170, 0, 0.6); border: 2px solid #fff;">${campeao}</div>
-                    </div>`;
-                }
-                bracketDiv.innerHTML = html;
-            } else {
-                bracketDiv.innerHTML = `
-                    <div class="round-col"><div class="round-title">Round 1</div>${renderPool('0-0')}</div>
-                    <div class="round-col"><div class="round-title">Round 2</div>${renderPool('1-0')}${renderPool('0-1')}</div>
-                    <div class="round-col"><div class="round-title">Round 3</div>${renderPool('2-0')}${renderPool('1-1')}${renderPool('0-2')}</div>
-                    <div class="round-col"><div class="round-title">Round 4</div>${renderPool('2-1')}${renderPool('1-2')}</div>
-                    <div class="round-col"><div class="round-title">Round 5</div>${renderPool('2-2')}</div>
-                `;
-            }
-        }
-
-        // Inicia a aplicação construindo tudo
-        renderApp();
-
-        // ==========================================
-        // VOTAÇÃO SILENCIOSA (AJAX)
-        // ==========================================
-        function registrarVoto(batalhaId, vencedorId) {
-            const containerAcoes = document.getElementById(`batalha-${batalhaId}`);
-            containerAcoes.innerHTML = '<div class="status-done" style="color: #888;">SALVANDO...</div>';
-
-            fetch(`/vitoria/${batalhaId}/${vencedorId}`, { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'sucesso') {
-                    containerAcoes.innerHTML = '<div class="status-done">FINALIZADO ✓</div>';
-                    batalhasPendentes--; // Subtrai uma batalha pendente
-                    
-                    // MÁGICA DE UX: Se todas as batalhas acabaram, faz o botão piscar!
-                    if (batalhasPendentes === 0) {
-                        const btn = document.getElementById('btn-gerar');
-                        if(btn && !btn.innerText.includes('CAMPEONATO ENCERRADO')) {
-                            const temQuartas = bats.some(b => b.pool === 'Quartas');
-                            btn.classList.add(temQuartas ? 'btn-glow-gold' : 'btn-glow');
-                            btn.innerText = '🌟 ' + btn.innerText + ' 🌟';
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                containerAcoes.innerHTML = '<div class="status-done" style="color: #e63946;">ERRO AO SALVAR</div>';
-            });
+        // Função que manda o voto para o Python silenciosamente e recarrega a página
+        function votar(idBatalha, idVencedor) {
+            fetch(`/vitoria/${idBatalha}/${idVencedor}`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => location.reload()); // Atualiza a página para mostrar quem avançou
         }
     </script>
 </body>

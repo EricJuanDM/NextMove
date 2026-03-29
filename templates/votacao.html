@@ -3,77 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bolão Next Move</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='votacao.css') }}">
+    <title>Bolão das Batalhas | Next Move</title>
+    <style>
+        body { background-color: #050505; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #00ff41; text-transform: uppercase; margin-bottom: 5px; }
+        .subtitulo { color: #aaa; margin-bottom: 30px; }
+        
+        .fase-titulo { background: #222; padding: 10px; margin-top: 30px; border-radius: 5px; text-align: left; font-weight: bold; border-left: 5px solid; }
+        .fase-winners { border-color: #00ff41; color: #00ff41; }
+        .fase-losers { border-color: #e63946; color: #e63946; }
+        .fase-final { border-color: #ffaa00; color: #ffaa00; }
+
+        .batalha-card { background: #111; border: 1px solid #333; padding: 15px; margin-top: 15px; border-radius: 8px; text-align: left; }
+        .batalha-header { font-size: 0.8rem; color: #888; margin-bottom: 10px; font-weight: bold; }
+        
+        .competidor-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #1a1a1a; margin-bottom: 5px; border-radius: 5px; }
+        .nome { font-size: 1.1rem; font-weight: bold; }
+        .fantasma { color: #555; font-style: italic; }
+        
+        .btn-votar { background: #333; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-votar:hover { background: #00ff41; color: #000; }
+        .btn-voto-computado { background: #00ff41; color: #000; padding: 8px 15px; border-radius: 5px; font-weight: bold; }
+        
+        .aviso-trava { color: #888; font-size: 0.9rem; text-align: center; padding: 10px; background: #1a1a1a; border-radius: 5px; }
+        .vencedor-destaque { border-left: 4px solid #00ff41; background: rgba(0, 255, 65, 0.1); }
+        
+        .btn-voltar { display: inline-block; margin-top: 30px; color: #888; text-decoration: none; border: 1px solid #444; padding: 10px 20px; border-radius: 5px; }
+    </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        {% if 'usuario' in session or 'usuario_id' in session %}
-            <div class="user-info"><span>👤 Logado</span></div>
-            <a href="/logout" class="btn-login">Sair</a>
-        {% else %}
-            <a href="/login" class="btn-login">Fazer Login</a>
-        {% endif %}
+    <div class="container">
+        <h1>🔮 Bolão Oficial</h1>
+        <p class="subtitulo">Acompanhe a chave e deixe seus palpites nas lutas liberadas!</p>
+
+        <a href="/ranking_bolao" style="background: #ffaa00; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">🏆 Ver Ranking do Bolão</a>
+
+        {% set chaves = [
+            ('W', 'CHAVE DOS VENCEDORES (WINNERS)', 'fase-winners'),
+            ('L', 'CHAVE DE REPESCAGEM (LOSERS)', 'fase-losers'),
+            ('G', 'GRANDE FINAL', 'fase-final')
+        ] %}
+
+        {% for prefixo, titulo, classe in chaves %}
+            <div class="fase-titulo {{ classe }}">{{ titulo }}</div>
+            
+            {% for b in batalhas %}
+                {% if b[1].startswith(prefixo) %}
+                    <div class="batalha-card" id="batalha-{{ b[0] }}">
+                        <div class="batalha-header">Luta: {{ b[1] }}</div>
+                        
+                        {% set c1_nome = b[5] if b[5] else 'Aguardando adversário...' %}
+                        {% set c2_nome = b[7] if b[7] else 'Aguardando adversário...' %}
+                        {% set estao_prontos = (b[5] and b[7]) %}
+
+                        {% set classe_c1 = 'vencedor-destaque' if b[2] == 'finalizada' and b[3] == b[4] else '' %}
+                        {% set classe_c2 = 'vencedor-destaque' if b[2] == 'finalizada' and b[3] == b[6] else '' %}
+
+                        <div class="competidor-row {{ classe_c1 }}">
+                            <span class="nome {% if not b[5] %}fantasma{% endif %}">{{ c1_nome }}</span>
+                            
+                            {% if b[2] == 'pendente' and estao_prontos %}
+                                {% if meus_palpites.get(b[0]) == b[4] %}
+                                    <span class="btn-voto-computado">✓ Seu Palpite</span>
+                                {% else %}
+                                    <button class="btn-votar" onclick="apostar({{ b[0] }}, {{ b[4] }})">Apostar</button>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        <div class="competidor-row {{ classe_c2 }}">
+                            <span class="nome {% if not b[7] %}fantasma{% endif %}">{{ c2_nome }}</span>
+                            
+                            {% if b[2] == 'pendente' and estao_prontos %}
+                                {% if meus_palpites.get(b[0]) == b[6] %}
+                                    <span class="btn-voto-computado">✓ Seu Palpite</span>
+                                {% else %}
+                                    <button class="btn-votar" onclick="apostar({{ b[0] }}, {{ b[6] }})">Apostar</button>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        {% if b[2] == 'pendente' and not estao_prontos %}
+                            <div class="aviso-trava">🔒 Palpites bloqueados até a luta ser formada.</div>
+                        {% elif b[2] == 'finalizada' %}
+                            <div class="aviso-trava" style="color: #00ff41;">✅ Luta Finalizada</div>
+                        {% endif %}
+
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+        <br>
+        <a href="/" class="btn-voltar">← Voltar para a Home</a>
     </div>
 
-    <h1>Faça seus Palpites</h1>
-    <p>Escolha quem você acha que vai vencer as batalhas!</p>
-
-    <button id="btn-nova-rodada" onclick="window.location.reload()">
-        🔥 Nova Rodada Disponível! Clique para Atualizar
-    </button>
-
-    {% set ns = namespace(acabou=false) %}
-    {% for b in batalhas %}
-        {% if b[2] == 'Final' and b[3] == 'finalizada' %}
-            {% set ns.acabou = true %}
-        {% endif %}
-    {% endfor %}
-
-    {% if ns.acabou %}
-        <div style="max-width: 600px; margin: 40px auto; background: #ffaa00; color: #000; padding: 30px; text-align: center; border-radius: 8px;">
-            <h1 style="color: #000; font-size: 2.2rem; margin-top: 0;">👑 O EVENTO ACABOU! 👑</h1>
-            <p style="font-size: 1.2rem; font-weight: bold;">Muito obrigado por participar do nosso Pick'em.</p>
-        </div>
-    {% else %}
-        
-        <div class="batalhas-container">
-            {% for b in batalhas %}
-                <div class="card-batalha" id="card-{{ loop.index0 }}">
-                    <div class="card-header">Round {{ b[1] }} | Chave {{ b[2] }}</div>
-                    
-                    <div class="opcoes">
-                        <button id="btn-{{ b[0] }}-{{ b[4] }}" class="btn-voto {% if meus_palpites.get(b[0]) == b[4] %}selecionado{% endif %}" onclick="fazerPalpite({{ b[0] }}, {{ b[4] }})" {% if b[3] == 'finalizada' %}disabled{% endif %}>
-                            {{ b[5] }}
-                        </button>
-                        <span class="vs">VS</span>
-                        <button id="btn-{{ b[0] }}-{{ b[6] }}" class="btn-voto {% if meus_palpites.get(b[0]) == b[6] %}selecionado{% endif %}" onclick="fazerPalpite({{ b[0] }}, {{ b[6] }})" {% if b[3] == 'finalizada' %}disabled{% endif %}>
-                            {{ b[7] }}
-                        </button>
-                    </div>
-
-                    <div class="msg-status" id="msg-{{ b[0] }}">
-                        {% if b[3] == 'finalizada' %}
-                            <span style="color: #e63946;">🔒 Batalha Encerrada</span>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
-
-            {% if batalhas|length > 0 %}
-            <div class="navegacao-batalhas">
-                <button id="btn-ant" class="btn-nav" onclick="mudarBatalha(-1)">&#8592; Anterior</button>
-                <span id="contador-batalhas">1 / {{ batalhas|length }}</span>
-                <button id="btn-prox" class="btn-nav" onclick="mudarBatalha(1)">Próxima &#8594;</button>
-            </div>
-            {% endif %}
-        </div>
-    {% endif %}
-
     <script>
-        const totalBatalhasInicial = {{ batalhas|length }};
+        function apostar(idBatalha, idCompetidor) {
+            fetch(`/enviar_palpite/${idBatalha}/${idCompetidor}`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'sucesso') {
+                    location.reload(); // Recarrega para mostrar o botão verde "Seu Palpite"
+                } else {
+                    alert(data.mensagem);
+                }
+            });
+        }
     </script>
-    <script src="{{ url_for('static', filename='votacao.js') }}"></script>
 </body>
 </html>
