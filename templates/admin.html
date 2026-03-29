@@ -120,7 +120,7 @@
                 else if (!temFinal) controlsDiv.innerHTML = `<form action="/gerar_mata_mata" method="POST"><button type="submit" class="btn btn-gold" id="btn-gerar">🏆 Gerar Final</button></form>`;
                 else controlsDiv.innerHTML = `<a href="/ranking_bolao" class="btn btn-gold" style="text-decoration: none; display: inline-block;">🏆 VER RANKING DO BOLÃO</a>`;
             } else {
-                controlsDiv.innerHTML = `<form action="/gerar_batalhas" method="POST"><button type="submit" class="btn" style="background: #fff; color: #000;" id="btn-gerar">⚙️ Gerar Próximo Round</button></form>`;
+                controlsDiv.innerHTML = `<form action="/gerar_batalhas_admin" method="POST"><button type="submit" class="btn" style="background: #fff; color: #000;" id="btn-gerar">⚙️ Gerar Próximo Round</button></form>`;
             }
 
             // --- C. DESENHA AS ZONAS DE STATUS (SÓ NO SUÍÇO) ---

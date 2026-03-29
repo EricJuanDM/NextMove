@@ -3,7 +3,6 @@ import psycopg2
 
 # Cria o "módulo" da portaria
 portaria_bp = Blueprint('portaria', __name__)
-# Importe a URL do seu banco de dados (ajuste se estiver em um arquivo separado)
 URL_BANCO = 'postgresql://neondb_owner:npg_F4Lr8SMQBqYy@ep-snowy-fog-ad66vpfz-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 
 
@@ -22,6 +21,7 @@ def venda_porta():
     if request.method == 'POST':
         nome_comprador = request.form.get('nome_completo')
         tipo_ingresso = request.form.get('tipo_ingresso')
+        email = request.form.get('email').strip().lower()
         import random
         email_gerado = f"porta_{random.randint(10000, 99999)}@nextmove.local"
         
@@ -119,7 +119,7 @@ def venda_antecipada():
 
     if request.method == 'POST':
         nome = request.form.get('nome_completo')
-        email = request.form.get('email')
+        email = request.form.get('email').strip().lower()
         tipo = request.form.get('tipo_ingresso')
 
         conn = psycopg2.connect(URL_BANCO)

@@ -5,15 +5,117 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 # Criando o módulo do Torneio
 votacao_bp = Blueprint('votacao_bp', __name__)
 
-# Lembre-se de colar sua URL verdadeira aqui!
 URL_BANCO = 'postgresql://neondb_owner:npg_F4Lr8SMQBqYy@ep-snowy-fog-ad66vpfz-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 
+
 # ==========================================
-# 1. ROTAS DO PAINEL ADMIN (GERENCIAMENTO)
+# 1. ROTAS DO PÚBLICO (BOLÃO / PALPITES)
+# ==========================================
+
+@votacao_bp.route('/batalhas')
+def pagina_batalhas():
+    # 🔒 TRAVA DE SEGURANÇA: Só quem fez login entra aqui!
+    usuario_logado_id = session.get('usuario_id') 
+    if not usuario_logado_id:
+        return redirect('/login')
+
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT b.id, b.round, b.pool, b.status,
+               c1.id, c1.nome, c2.id, c2.nome
+        FROM batalhas_suico b
+        JOIN competidores c1 ON b.competidor1_id = c1.id
+        JOIN competidores c2 ON b.competidor2_id = c2.id
+        ORDER BY b.round ASC, b.id ASC
+    ''')
+    batalhas = cursor.fetchall()
+
+    meus_palpites = {}
+    if usuario_logado_id:
+        cursor.execute('SELECT batalha_id, palpite_vencedor_id FROM palpites WHERE usuario_id = %s', (usuario_logado_id,))
+        votos_db = cursor.fetchall()
+        meus_palpites = {voto[0]: voto[1] for voto in votos_db}
+
+    conn.close()
+    
+    # IMPORTANTE: Verifique se o seu arquivo HTML se chama votacao.html ou batalhas.html e ajuste aqui se precisar!
+    return render_template('votacao.html', batalhas=batalhas, meus_palpites=meus_palpites)
+
+
+@votacao_bp.route('/ranking_bolao')
+def ranking_bolao():
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    
+    # 👤 MUDANÇA AQUI: Trocamos u.email por u.nome_completo no SELECT e no GROUP BY
+    cursor.execute('''
+        SELECT COALESCE(u.nome_completo, 'Dançarino Sem Nome'), COUNT(p.id) as acertos
+        FROM usuarios u
+        JOIN palpites p ON u.id = p.usuario_id
+        JOIN batalhas_suico b ON p.batalha_id = b.id
+        WHERE b.status = 'finalizada' AND p.palpite_vencedor_id = b.vencedor_id
+        GROUP BY u.nome_completo
+        ORDER BY acertos DESC
+    ''')
+    ranking = cursor.fetchall()
+    conn.close()
+    
+    return render_template('ranking.html', ranking=ranking)
+
+
+@votacao_bp.route('/enviar_palpite/<int:batalha_id>/<int:competidor_id>', methods=['POST'])
+def enviar_palpite(batalha_id, competidor_id):
+    usuario_logado_id = session.get('usuario_id') 
+    
+    if not usuario_logado_id:
+        return jsonify({'status': 'erro', 'mensagem': 'Você precisa fazer login para votar.'})
+
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT status FROM batalhas_suico WHERE id = %s", (batalha_id,))
+        if cursor.fetchone()[0] == 'finalizada':
+            return jsonify({'status': 'erro', 'mensagem': 'Batalha já encerrada!'})
+
+        cursor.execute('''
+            INSERT INTO palpites (usuario_id, batalha_id, palpite_vencedor_id)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (usuario_id, batalha_id) 
+            DO UPDATE SET palpite_vencedor_id = EXCLUDED.palpite_vencedor_id
+        ''', (usuario_logado_id, batalha_id, competidor_id))
+        
+        conn.commit()
+        return jsonify({'status': 'sucesso'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'status': 'erro', 'mensagem': str(e)})
+    finally:
+        conn.close()
+
+@votacao_bp.route('/verificar_atualizacoes')
+def verificar_atualizacoes():
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    cursor.execute('SELECT COUNT(*) FROM batalhas_suico')
+    total = cursor.fetchone()[0]
+    conn.close()
+    return jsonify({'total_batalhas': total})
+
+
+# ==========================================
+# 2. ROTAS DO PAINEL ADMIN (GERENCIAMENTO)
 # ==========================================
 
 @votacao_bp.route('/admin', methods=['GET', 'POST'])
 def admin():
+    # 🔒 TRAVA DE SEGURANÇA: Só admin entra no painel de gerenciar as chaves!
+    nivel = session.get('nivel_acesso')
+    if not nivel or nivel.lower() not in ['admin', 'superadmin']:
+        return redirect('/')
+
     conn = psycopg2.connect(URL_BANCO)
     cursor = conn.cursor()
 
@@ -40,8 +142,9 @@ def admin():
     
     return render_template('admin.html', competidores=competidores, batalhas=batalhas)
 
-@votacao_bp.route('/gerar_batalhas', methods=['POST'])
-def gerar_batalhas():
+
+@votacao_bp.route('/gerar_batalhas_admin', methods=['POST'])
+def gerar_batalhas_admin():
     conn = psycopg2.connect(URL_BANCO)
     cursor = conn.cursor()
 
@@ -75,6 +178,7 @@ def gerar_batalhas():
     conn.commit()
     conn.close()
     return redirect(url_for('votacao_bp.admin'))
+
 
 @votacao_bp.route('/gerar_mata_mata', methods=['POST'])
 def gerar_mata_mata():
@@ -115,6 +219,7 @@ def gerar_mata_mata():
     conn.close()
     return redirect(url_for('votacao_bp.admin'))
 
+
 @votacao_bp.route('/vitoria/<int:batalha_id>/<int:vencedor_id>', methods=['POST'])
 def registrar_vitoria(batalha_id, vencedor_id):
     conn = psycopg2.connect(URL_BANCO)
@@ -133,6 +238,7 @@ def registrar_vitoria(batalha_id, vencedor_id):
     
     return jsonify({'status': 'sucesso'})
 
+
 @votacao_bp.route('/deletar_competidor/<int:id>')
 def deletar_competidor(id):
     conn = psycopg2.connect(URL_BANCO)
@@ -146,12 +252,13 @@ def deletar_competidor(id):
     conn.close()
     return redirect(url_for('votacao_bp.admin'))
 
+
 @votacao_bp.route('/resetar_torneio', methods=['POST'])
 def resetar_torneio():
     conn = psycopg2.connect(URL_BANCO)
     cursor = conn.cursor()
     
-    cursor.execute('DELETE FROM palpites') # Apaga os votos primeiro por causa das chaves estrangeiras
+    cursor.execute('DELETE FROM palpites') 
     cursor.execute('DELETE FROM batalhas_suico')
     cursor.execute('DELETE FROM competidores')
     cursor.execute('ALTER SEQUENCE batalhas_suico_id_seq RESTART WITH 1')
@@ -160,94 +267,3 @@ def resetar_torneio():
     conn.commit()
     conn.close()
     return redirect(url_for('votacao_bp.admin'))
-
-
-# ==========================================
-# 2. ROTAS DO PÚBLICO (BOLÃO / PALPITES)
-# ==========================================
-
-@votacao_bp.route('/votacao')
-def votacao():
-    usuario_logado_id = session.get('usuario_id') 
-
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-
-    cursor.execute('''
-        SELECT b.id, b.round, b.pool, b.status,
-               c1.id, c1.nome, c2.id, c2.nome
-        FROM batalhas_suico b
-        JOIN competidores c1 ON b.competidor1_id = c1.id
-        JOIN competidores c2 ON b.competidor2_id = c2.id
-        ORDER BY b.round ASC, b.id ASC
-    ''')
-    batalhas = cursor.fetchall()
-
-    meus_palpites = {}
-    if usuario_logado_id:
-        cursor.execute('SELECT batalha_id, palpite_vencedor_id FROM palpites WHERE usuario_id = %s', (usuario_logado_id,))
-        votos_db = cursor.fetchall()
-        meus_palpites = {voto[0]: voto[1] for voto in votos_db}
-
-    conn.close()
-    
-    return render_template('votacao.html', batalhas=batalhas, meus_palpites=meus_palpites)
-
-@votacao_bp.route('/enviar_palpite/<int:batalha_id>/<int:competidor_id>', methods=['POST'])
-def enviar_palpite(batalha_id, competidor_id):
-    usuario_logado_id = session.get('usuario_id') 
-    
-    if not usuario_logado_id:
-        return jsonify({'status': 'erro', 'mensagem': 'Você precisa fazer login para votar.'})
-
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute("SELECT status FROM batalhas_suico WHERE id = %s", (batalha_id,))
-        if cursor.fetchone()[0] == 'finalizada':
-            return jsonify({'status': 'erro', 'mensagem': 'Batalha já encerrada!'})
-
-        cursor.execute('''
-            INSERT INTO palpites (usuario_id, batalha_id, palpite_vencedor_id)
-            VALUES (%s, %s, %s)
-            ON CONFLICT (usuario_id, batalha_id) 
-            DO UPDATE SET palpite_vencedor_id = EXCLUDED.palpite_vencedor_id
-        ''', (usuario_logado_id, batalha_id, competidor_id))
-        
-        conn.commit()
-        return jsonify({'status': 'sucesso'})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'status': 'erro', 'mensagem': str(e)})
-    finally:
-        conn.close()
-
-@votacao_bp.route('/ranking_bolao')
-def ranking_bolao():
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT u.email, COUNT(p.id) as acertos
-        FROM usuarios u
-        JOIN palpites p ON u.id = p.usuario_id
-        JOIN batalhas_suico b ON p.batalha_id = b.id
-        WHERE b.status = 'finalizada' AND p.palpite_vencedor_id = b.vencedor_id
-        GROUP BY u.email
-        ORDER BY acertos DESC
-    ''')
-    ranking = cursor.fetchall()
-    conn.close()
-    
-    return render_template('ranking.html', ranking=ranking)
-@votacao_bp.route('/verificar_atualizacoes')
-def verificar_atualizacoes():
-    conn = psycopg2.connect(URL_BANCO)
-    cursor = conn.cursor()
-    # Conta quantas batalhas existem no total
-    cursor.execute('SELECT COUNT(*) FROM batalhas_suico')
-    total = cursor.fetchone()[0]
-    conn.close()
-    
-    return jsonify({'total_batalhas': total})
