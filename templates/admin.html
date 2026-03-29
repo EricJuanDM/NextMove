@@ -80,17 +80,15 @@
     </div>
 
     <script>
-        // Puxa as batalhas do Python para o Javascript
+        // Puxa as batalhas do Python
         const bats = {{ batalhas | tojson | safe }};
         
         function drawMatch(b) {
-            // b = [id, pool, status, vencedor_id, c1_id, c1_nome, c2_id, c2_nome]
             let c1 = b[5] ? b[5] : 'Aguardando...';
             let c2 = b[7] ? b[7] : 'Aguardando...';
             let classC1 = b[4] ? 'player' : 'player tbd';
             let classC2 = b[6] ? 'player' : 'player tbd';
             
-            // Destaca o vencedor de verde se a batalha acabou
             if (b[2] === 'finalizada') {
                 if (b[3] === b[4]) classC1 += ' winner';
                 if (b[3] === b[6]) classC2 += ' winner';
@@ -103,7 +101,7 @@
                 <div class="${classC2}">${c2}</div>
             `;
             
-            // Só mostra os botões se a luta não acabou E se já tem os dois lutadores definidos
+            // Lógica de botões: Se não acabou, mostra "Venceu". Se acabou, mostra "Desfazer".
             if (b[2] !== 'finalizada' && b[4] && b[6]) {
                 html += `
                 <div style="display:flex; gap:5px; margin-top:10px;">
@@ -111,12 +109,16 @@
                     <button class="btn-win" onclick="votar(${b[0]}, ${b[6]})">⇩ Venceu</button>
                 </div>`;
             } else if (b[2] === 'finalizada') {
-                html += `<div style="margin-top:10px; color:#00ff41; font-size:0.8rem; text-align:center; font-weight:bold;">✅ FINALIZADA</div>`;
+                html += `
+                <div style="margin-top:10px; text-align:center;">
+                    <span style="color:#00ff41; font-size:0.8rem; font-weight:bold;">✅ FINALIZADA</span>
+                    <button onclick="desfazer(${b[0]})" style="background:transparent; border:1px solid #e63946; color:#e63946; padding:2px 5px; border-radius:3px; font-size:0.7rem; margin-left:10px; cursor:pointer;">Desfazer</button>
+                </div>`;
             }
             return html + `</div>`;
         }
 
-        // Separa as caixas por grupo (W, L ou GF)
+        // Separa as caixas por grupo
         let wHtml = '', lHtml = '', fHtml = '';
         bats.forEach(b => {
             if (b[1].startsWith('W')) wHtml += drawMatch(b);
@@ -124,16 +126,31 @@
             else if (b[1].startsWith('GF')) fHtml += drawMatch(b);
         });
 
-        // Joga as caixas desenhadas na tela
+        // Joga as caixas na tela
         if(wHtml) document.getElementById('winners-container').innerHTML = wHtml;
         if(lHtml) document.getElementById('losers-container').innerHTML = lHtml;
         if(fHtml) document.getElementById('final-container').innerHTML = fHtml;
 
-        // Função que manda o voto para o Python silenciosamente e recarrega a página
+        // Função de Votar
         function votar(idBatalha, idVencedor) {
             fetch(`/vitoria/${idBatalha}/${idVencedor}`, { method: 'POST' })
             .then(res => res.json())
-            .then(data => location.reload()); // Atualiza a página para mostrar quem avançou
+            .then(data => location.reload()); 
+        }
+
+        // Função de Desfazer (A nova que você pediu!)
+        function desfazer(idBatalha) {
+            if(confirm("Tem certeza que quer desfazer o resultado dessa luta? O vencedor vai ser removido das próximas chaves.")) {
+                fetch(`/desfazer/${idBatalha}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'sucesso') {
+                        location.reload(); 
+                    } else {
+                        alert("Erro ao desfazer.");
+                    }
+                });
+            }
         }
     </script>
 </body>

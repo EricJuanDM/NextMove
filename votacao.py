@@ -251,3 +251,36 @@ def ranking_bolao():
     conn.close()
     
     return render_template('ranking.html', ranking=ranking)
+
+@votacao_bp.route('/desfazer/<int:batalha_id>', methods=['POST'])
+def desfazer_vitoria(batalha_id):
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT pool FROM batalhas_suico WHERE id = %s", (batalha_id,))
+    pool = cursor.fetchone()[0]
+
+    regras = REGRAS_AVANCO.get(pool)
+    if regras:
+        # 1. Tira o cara errado da próxima chave de Vencedores
+        if regras['win'] not in ['FIM', 'RESET']:
+            prox_pool_win, vaga_win = regras['win']
+            coluna_win = 'competidor1_id' if vaga_win == 'c1' else 'competidor2_id'
+            cursor.execute(f"UPDATE batalhas_suico SET {coluna_win} = NULL WHERE pool = %s", (prox_pool_win,))
+
+        # 2. Tira o cara errado da chave de Repescagem
+        if regras['lose'] not in [None, 'CHECK_RESET', 'RESET']:
+            prox_pool_lose, vaga_lose = regras['lose']
+            coluna_lose = 'competidor1_id' if vaga_lose == 'c1' else 'competidor2_id'
+            cursor.execute(f"UPDATE batalhas_suico SET {coluna_lose} = NULL WHERE pool = %s", (prox_pool_lose,))
+
+        # 3. Se foi na Grande Final, apaga a luta do Reset (GF2) se ela tiver sido criada
+        if pool == 'GF1':
+            cursor.execute("DELETE FROM batalhas_suico WHERE pool = 'GF2'")
+
+    # 4. Restaura a batalha atual para "pendente" e tira o Vencedor
+    cursor.execute("UPDATE batalhas_suico SET vencedor_id = NULL, status = 'pendente' WHERE id = %s", (batalha_id,))
+
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'sucesso'})
