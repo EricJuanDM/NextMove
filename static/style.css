@@ -1,248 +1,159 @@
-/* Configurações Globais */
+/* ==========================================================================
+   STYLE.CSS - ESTILOS GLOBAIS DO SISTEMA (CYBERPUNK)
+   ========================================================================== */
+
+/* 1. Importação de Fontes Futuristas */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* 2. Variáveis de Sistema (Paleta de Cores) */
+:root {
+    --bg-base: #030303;
+    --bg-panel: #0a0a0a;
+    --border-dark: #222222;
+    --text-main: #f0f0f0;
+    --text-muted: #666666;
+    
+    --neon-green: #00ff41;
+    --neon-green-dim: rgba(0, 255, 65, 0.15);
+    
+    --neon-red: #ff003c;
+    --neon-red-dim: rgba(255, 0, 60, 0.15);
+    
+    --neon-gold: #fcee0a;
+    --neon-gold-dim: rgba(252, 238, 10, 0.15);
+}
+
+/* 3. Reset e Base do Site */
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: #121212; /* Fundo escuro */
-    color: #f4f4f4;
-    line-height: 1.6;
+    background-color: var(--bg-base) !important;
+    color: var(--text-main) !important;
+    font-family: 'Space Mono', monospace !important;
+    background-image: 
+        linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px; /* Grade Matrix */
 }
 
-/* Cores Principais */
-:root {
-    --primary-color: #33ff3d; /* Rosa/Vermelho vibrante */
-    --hover-color: #33ff3d;
-    --dark-grey: #1e1e1e;
-}
-
-/* Navegação */
-header {
-    background-color: rgba(18, 18, 18, 0.9);
-    padding: 20px 50px;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 100;
-}
-
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    font-size: 24px;
-    font-weight: bold;
+/* 4. Tipografia de Títulos */
+h1, h2, h3, h4 {
+    font-family: 'Orbitron', sans-serif !important;
+    text-transform: uppercase;
     letter-spacing: 2px;
 }
 
-.logo span {
-    color: var(--primary-color);
+/* 5. Inputs de Formulário Globais */
+input[type="text"], input[type="password"] {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-dark) !important;
+    border-bottom: 2px solid var(--neon-green) !important;
+    color: var(--neon-green) !important;
+    font-family: 'Space Mono', monospace !important;
+    padding: 12px 15px !important;
+    outline: none;
+    transition: 0.3s;
+    border-radius: 0 !important;
+    width: 100%;
 }
 
-.nav-links {
-    list-style: none;
-    display: flex;
-    gap: 30px;
-    align-items: center;
+input[type="text"]:focus, input[type="password"]:focus {
+    box-shadow: 0 5px 15px -5px var(--neon-green);
+    background-color: #000 !important;
 }
 
-.nav-links a {
-    color: #f4f4f4;
+/* 6. Botões Globais */
+.btn {
+    font-family: 'Orbitron', sans-serif !important;
+    font-weight: bold !important;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 10px 20px;
+    background: transparent !important;
+    border-radius: 0 !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.nav-links a:hover {
-    color: var(--primary-color);
-}
-
-/* Botões */
-.btn-primary {
-    background-color: var(--primary-color);
-    color: #fff;
-    padding: 12px 28px;
-    text-decoration: none;
-    border-radius: 30px;
-    font-weight: bold;
-    transition: background 0.3s;
     display: inline-block;
 }
 
-.btn-primary:hover {
-    background-color: var(--hover-color);
+.btn-green {
+    color: var(--neon-green) !important;
+    border: 1px solid var(--neon-green) !important;
+    box-shadow: 0 0 10px var(--neon-green-dim), inset 0 0 5px var(--neon-green-dim);
 }
 
-.btn-outline {
-    border: 2px solid var(--primary-color);
-    color: var(--primary-color) !important;
-    padding: 8px 20px;
-    border-radius: 30px;
+.btn-green:hover {
+    background: var(--neon-green) !important;
+    color: #000 !important;
+    box-shadow: 0 0 20px var(--neon-green), inset 0 0 10px var(--neon-green);
 }
 
-.btn-outline:hover {
-    background-color: var(--primary-color);
+.btn-red {
+    color: var(--neon-red) !important;
+    border: 1px solid var(--neon-red) !important;
+    box-shadow: 0 0 10px var(--neon-red-dim), inset 0 0 5px var(--neon-red-dim);
+}
+
+.btn-red:hover {
+    background: var(--neon-red) !important;
     color: #fff !important;
+    box-shadow: 0 0 20px var(--neon-red), inset 0 0 10px var(--neon-red);
 }
 
-/* Seção Hero */
-#hero {
-    height: 100vh;
+/* 7. Barra de Navegação Global (Navbar) - CORRIGIDA E À PROVA DE BALAS */
+.cyber-nav {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 0 20px;
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://source.unsplash.com/random/1920x1080/?dance,hiphop') center/cover;
-}
-
-.hero-content h1 {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-}
-
-.hero-content h1 span {
-    color: var(--primary-color);
-}
-
-.hero-content p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Seção Sobre */
-#sobre {
-    padding: 80px 50px;
-    text-align: center;
-}
-
-#sobre h2 {
-    font-size: 2.5rem;
-    margin-bottom: 40px;
-    color: var(--primary-color);
-}
-
-.cards-container {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-}
-
-.card {
-    background-color: var(--dark-grey);
-    padding: 30px;
-    border-radius: 10px;
-    width: 300px;
-    border-bottom: 4px solid var(--primary-color);
-    transition: transform 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-10px);
-}
-
-.card h3 {
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-}
-
-/* Rodapé */
-footer {
-    text-align: center;
-    padding: 20px;
-    background-color: #0a0a0a;
-    color: #888;
-}
-
-/* Estilo do Avatar do Usuário Logado */
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    background-color: #2dfa45; /* Aquele verde vibrante que você usou */
-    color: #121212;
-    border-radius: 50%; /* Deixa redondo */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-    cursor: pointer;
-    box-shadow: 0 0 10px rgba(45, 250, 69, 0.4);
-}   
-
-/* RESPONSIVIDADE (Telas menores que 768px)   */
-/* ========================================== */
-/* ESTILO DO MENU HAMBÚRGUER (COMPUTADOR)     */
-/* ========================================== */
-.menu-toggle {
-    display: none; /* Fica escondido no PC */
-    flex-direction: column;
     justify-content: space-between;
-    width: 30px;
-    height: 24px;
-    cursor: pointer;
+    align-items: center;
+    padding: 15px 40px;
+    background: rgba(0, 0, 0, 0.95); /* Fundo sólido para destacar o texto */
+    border-bottom: 2px solid var(--neon-green);
+    box-shadow: 0 4px 15px var(--neon-green-dim);
+    position: sticky; /* Gruda no topo ao rolar a página */
+    top: 0;
+    z-index: 9999; /* Garante que fica na frente de qualquer outra coisa na tela */
+    flex-wrap: wrap; /* Não quebra em telas de celular */
+    gap: 15px;
 }
 
-.menu-toggle .bar {
-    width: 100%;
-    height: 3px;
-    background-color: #fff;
-    border-radius: 3px;
-    transition: all 0.3s ease;
+.cyber-nav .logo {
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 1.8rem;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 900;
+    letter-spacing: 2px;
 }
 
-/* ========================================== */
-/* RESPONSIVIDADE (CELULAR - Telas até 768px) */
-/* ATENÇÃO: Isso precisa ser a última coisa do arquivo! */
-/* ========================================== */
-@media (max-width: 768px) {
-    /* 1. Faz o botão hambúrguer aparecer */
-    .menu-toggle {
-        display: flex; 
-    }
-
-    /* 2. Ajusta o Header para não espremer o logo */
-    nav {
-        justify-content: space-between; 
-        align-items: center;
-        flex-direction: row; 
-    }
-
-    /* 3. Esconde a lista de links para abrir só quando clicar */
-    .nav-links {
-        display: none; 
-        flex-direction: column;
-        width: 100%;
-        text-align: center;
-        position: absolute;
-        top: 70px; 
-        left: 0;
-        background-color: #111; 
-        padding: 20px 0;
-        box-shadow: 0px 10px 15px rgba(0,0,0,0.5);
-        z-index: 1000;
-        gap: 20px;
-    }
-
-    /* 4. A classe que o JavaScript usa para mostrar a lista */
-    .nav-links.active {
-        display: flex;
-    }
-
-    /* 5. Ajustes gerais de texto no celular */
-    .hero-content h1 { font-size: 2.5rem; }
-    .hero-content p { font-size: 1rem; padding: 0 15px; }
-    #sobre { padding: 50px 20px; }
-    .card { width: 100%; }
+.cyber-nav .logo span {
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green);
 }
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 25px; 
+    flex-wrap: wrap; 
+}
+
+/* Aplica o estilo apenas nos links de texto, salvando a vida dos botões .btn */
+.nav-links a:not(.btn) {
+    font-family: 'Space Mono', monospace;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.nav-links a:not(.btn):hover {
+    color: var(--neon-green);
+    text-shadow: 0 0 8px var(--neon-green);
+}   

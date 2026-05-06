@@ -1,99 +1,75 @@
-/* login.css - Estilos exclusivos da página de login */
+/* ==========================================================================
+   LOGIN.CSS - ESTILOS EXCLUSIVOS DA TELA DE AUTENTICAÇÃO E CADASTRO
+   ========================================================================== */
 
-.login-page {
-    background: linear-gradient(rgba(18, 18, 18, 0.9), rgba(18, 18, 18, 0.9)), url('https://source.unsplash.com/random/1920x1080/?urban,neon') center/cover;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-#login-container {
-    flex: 1;
+/* 1. Container que centraliza a caixa na tela perfeitamente */
+.auth-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
+    /* Calcula a altura total da tela menos o tamanho do cabeçalho (aprox 80px) */
+    min-height: calc(100vh - 80px); 
     padding: 20px;
-    margin-top: 60px;
 }
 
-.login-box {
-    background-color: var(--dark-grey);
+/* 2. A Caixa de Login principal (Estilo Cyberforce) */
+.auth-box {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dark);
+    border-top: 3px solid var(--neon-green);
     padding: 40px;
-    border-radius: 12px;
     width: 100%;
-    max-width: 400px;
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
-    border-top: 4px solid var(--primary-color);
+    max-width: 450px; /* Não deixa a caixa ficar gigante no PC */
+    box-shadow: 0 -5px 25px var(--neon-green-dim);
+    transition: 0.3s;
 }
 
-.login-box h2 {
-    text-align: center;
-    margin-bottom: 10px;
-    color: #fff;
+.auth-box:hover {
+    box-shadow: 0 -5px 35px rgba(0, 255, 65, 0.25);
 }
 
-.login-box p {
-    text-align: center;
-    color: #aaa;
+/* 3. Cabeçalho dentro da caixa (Texto de ACESSO) */
+.auth-header {
     margin-bottom: 30px;
-    font-size: 0.9rem;
 }
 
-.input-group {
-    margin-bottom: 20px;
-}
-
-.input-group label {
+.system-status {
+    font-family: 'Space Mono', monospace;
+    color: #00a8ff; /* Aquele Azul Ciano tecnológico da sua foto */
+    font-size: 0.75rem;
+    margin-bottom: 10px;
     display: block;
+}
+
+.auth-box h2 {
+    font-size: 2.5rem;
+    color: #fff !important;
+    margin: 0;
+    letter-spacing: 5px;
+}
+
+/* 4. Textos de sistema acima dos inputs (EMAIL_ID, SENHA_HASH) */
+.tech-label {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    color: #00a8ff; /* Azul Ciano */
+    font-size: 0.8rem;
+    margin-top: 25px;
     margin-bottom: 8px;
-    font-size: 0.9rem;
-    color: #ccc;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.input-group input {
+/* Adiciona as barras de código antes do texto automaticamente */
+.tech-label::before {
+    content: "// ";
+}
+
+/* 5. Modificação extra para o botão ficar mais largo e imponente no login */
+.btn-auth {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #333;
-    background-color: #121212;
-    color: #fff;
-    border-radius: 6px;
-    outline: none;
-    transition: border-color 0.3s;
-}
-
-.input-group input:focus {
-    border-color: var(--primary-color);
-}
-
-.btn-block {
-    width: 100%;
-    margin-top: 10px;
-    cursor: pointer;
-    border: none;
-    font-size: 1rem;
-}
-
-.register-link {
-    margin-top: 25px !important;
-}
-
-.register-link a {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.register-link a:hover {
-    text-decoration: underline;
-}
-/* Responsividade do Login */
-@media (max-width: 768px) {
-    #login-container {
-        margin-top: 120px; /* Empurra a caixa mais para baixo no celular */
-        padding: 15px;
-    }
-    
-    .login-box {
-        padding: 30px 20px;
-    }
+    margin-top: 30px;
+    padding: 15px !important;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
 }

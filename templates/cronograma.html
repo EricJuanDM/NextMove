@@ -4,80 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cronograma | Next Move</title>
+    
+    <!-- Puxando o CSS Global Mágico -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='cronograma.css') }}">
+    
+    <style>
+        .timeline-container { max-width: 800px; margin: 50px auto; padding: 20px; }
+        
+        .timeline-item {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dark);
+            border-left: 3px solid var(--neon-green);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            transition: 0.3s;
+        }
+        
+        .timeline-item:hover { 
+            box-shadow: 0 5px 15px var(--neon-green-dim); 
+            transform: translateX(10px); 
+        }
+        
+        .time-box {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-green);
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-width: 90px;
+        }
+        
+        .event-desc { 
+            font-family: 'Space Mono', monospace; 
+            color: var(--text-main); 
+            font-size: 1rem;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo"><a href="{{ url_for('home') }}" style="text-decoration: none; color: inherit;">NEXT<span>MOVE</span></a></div>
-            
-            <div class="menu-toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
 
-            <ul class="nav-links">
-                <li><a href="{{ url_for('home') }}">O Evento</a></li>
-                <li><a href="{{ url_for('cronograma') }}">Cronograma</a></li>
-                
-                {% if 'usuario' in session %}
-                    <li><div class="user-avatar">{{ session['usuario'][0] | upper }}</div></li>
-                    <li><a href="{{ url_for('logout') }}" style="font-size: 0.8rem; color: #aaa;">Sair</a></li>
-                {% else %}
-                    <li><a href="{{ url_for('login') }}" class="btn-outline">Login</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </header>
-
-    <section class="schedule-section" style="min-height: 100vh;">
-        <h2>Cronograma do Evento</h2>
-        <p>Programe-se para não perder nada. Horários sujeitos a alterações.</p>
+    <!-- NAVBAR CYBER CORRIGIDA -->
+    <nav class="cyber-nav">
+        <a href="/" class="logo">NEXT<span>MOVE</span></a>
         
-        <div class="timeline">
-            <div class="timeline-item">
-                <div class="time">09:30</div>
-                <div class="content">
-                    <h3>Abertura dos Portões</h3>
-                    <p>Credenciamento</p>
-                </div>
-            </div>
-            
-            <div class="timeline-item">
-                <div class="time">10:00</div>
-                <div class="content">
-                    <h3>Workshop Raila Costa </h3>
-                    <p>Aula de coreografia, duração de 1h15</p>
-                </div>
-            </div>
-            
-            <div class="timeline-item">
-                <div class="time">11:30</div>
-                <div class="content">
-                    <h3>Workshop Sol de Jesus</h3>
-                    <p>Aula de Hip Hop, duração de 1h15</p>
-                </div>
-            </div>
-            
-            <div class="timeline-item">
-                <div class="time">14:00</div>
-                <div class="content">
-                    <h3>Início da Batalha</h3>
-                    <p>Batalha Open Style </p>
-                </div>
-            </div>
+        <div class="nav-links">
+            <a href="/#evento">O Evento</a>
+            <a href="/cronograma">Cronograma</a>
+            <a href="/votacao">Votar nas Batalhas</a>
+            <a href="/login" class="btn btn-green">LOGIN</a>
         </div>
-    </section>
+    </nav>
 
-    <script>
-        const menuToggle = document.querySelector('#mobile-menu');
-        const navLinks = document.querySelector('.nav-links');
+    <div class="timeline-container">
+        <h1 style="text-align: center; color: #fff; margin-bottom: 10px;">CRONOGRAMA DO EVENTO</h1>
+        <p style="text-align: center; color: var(--text-muted); font-family: 'Space Mono', monospace; margin-bottom: 40px;">// Programe-se para não perder nada. Horários sujeitos a alterações.</p>
 
-        menuToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        });
-    </script>
+        <!-- CARTÕES DO CRONOGRAMA -->
+        <div class="timeline-item">
+            <div class="time-box">13:00</div>
+            <div class="event-desc">Abertura dos Portões e Credenciamento</div>
+        </div>
+        
+        <div class="timeline-item">
+            <div class="time-box">14:00</div>
+            <div class="event-desc">Início das Batalhas (Top 8 - Double Elimination)</div>
+        </div>
+        
+        <div class="timeline-item">
+            <div class="time-box">16:30</div>
+            <div class="event-desc">Apresentações Convidadas (Showcases)</div>
+        </div>
+        
+        <div class="timeline-item" style="border-left-color: var(--neon-gold);">
+            <div class="time-box" style="color: var(--neon-gold);">18:00</div>
+            <div class="event-desc">Grande Final e Premiação</div>
+        </div>
+    </div>
+
 </body>
 </html>

@@ -1,0 +1,95 @@
+/* ==========================================================================
+   HOME.CSS - ESTILOS EXCLUSIVOS DA PÁGINA INICIAL
+   ========================================================================== */
+
+/* 1. Tela Gigante Inicial (Hero) */
+.hero-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 70vh;
+    padding: 20px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+}
+
+.hero-subtitle {
+    font-family: 'Space Mono', monospace;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+.btn-hero {
+    font-size: 1.2rem;
+    padding: 15px 30px !important;
+}
+
+/* 2. Área de Informações ("O Que Vai Rolar") */
+.info-section {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #fff;
+}
+
+/* 3. Cartões Cibernéticos */
+.cyber-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dark);
+    border-left: 3px solid var(--neon-green);
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: 0.3s;
+}
+
+.cyber-card:hover {
+    transform: translateX(10px);
+    box-shadow: 0 5px 20px var(--neon-green-dim);
+}
+
+.cyber-card h3 {
+    color: var(--neon-green);
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+.cyber-card p {
+    line-height: 1.6;
+    color: #ccc;
+    margin: 0;
+}
+
+/* 3.1 Cartão Dourado (Para Batalhas) */
+.gold-card {
+    border-left-color: var(--neon-gold);
+}
+
+.gold-card h3 {
+    color: var(--neon-gold);
+}
+
+/* 4. Rodapé */
+.cyber-footer {
+    text-align: center;
+    padding: 30px;
+    font-family: 'Space Mono', monospace;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px dashed var(--border-dark);
+    margin-top: 50px;
+    background: #000;
+}

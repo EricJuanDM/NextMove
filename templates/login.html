@@ -3,121 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso | Next Move</title>
+    <title>Sistema de Autenticação | Next Move</title>
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
-</head>
-<body class="login-page">
-    <header>
-        <nav>
-            <div class="logo"><a href="{{ url_for('home') }}" style="text-decoration: none; color: inherit;">NEXT<span>MOVE</span></a></div>
-            <ul class="nav-links">
-                <li><a href="{{ url_for('home') }}">Voltar para Home</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <section id="login-container">
-        
-        <div class="login-box" id="box-login">
-            <h2>Entrar na Roda</h2>
-            <p>Faça login.</p>
-            
-            <form action="{{ url_for('login') }}" method="POST">
-                <div class="input-group">
-                    <label for="email_login">E-mail</label>
-                    <input type="email" id="email_login" name="email" placeholder="seu-email@gmail.com" required>
-                </div>
-                
-                <div class="input-group">
-                    <label for="senha_login">Senha</label>
-                    <input type="password" id="senha_login" name="senha" placeholder="Sua senha" required>
-                </div>
-                
-                <button type="submit" class="btn-primary btn-block" style="background-color: #2dfa45; color: white; font-weight: bold;">Entrar</button>
-            </form>
-            
-            <p class="register-link">Ainda não tem conta? <a href="#" onclick="mostrarCadastro(); return false;">Cadastre-se aqui</a></p>
-        </div>
-
-        <div class="login-box" id="box-cadastro" style="display: none;">
-            <h2>Crie sua conta</h2>
-            <p>É rápido e fácil.</p>
-            
-            <form action="{{ url_for('cadastro') }}" method="POST">
-                <div class="input-group">
-                    <label for="nome_cad">Nome Completo</label>
-                    <input type="text" id="nome_cad" name="nome_completo" placeholder="Seu nome completo" required>
-                </div>
-                <div class="input-group">
-                    <label for="email_cad">E-mail</label>
-                    <input type="email" id="email_cad" name="email" placeholder="seu-email@gmail.com" required>
-                </div>
-                
-                <div class="input-group">
-                    <label for="senha_cad">Senha</label>
-                    <input type="password" id="senha_cad" name="senha" placeholder="Sua senha" required>
-                </div>
-                
-                <button type="submit" class="btn-primary btn-block" style="background-color: #2dfa45; color: white; font-weight: bold;">Criar Conta</button>
-            </form>
-            
-            <p class="register-link"><a href="#" onclick="mostrarLogin(); return false;">Voltar para o Login</a></p>
-        </div>
-
-    </section>
-
-    <script>
-        function mostrarCadastro() {
-            document.getElementById('box-login').style.display = 'none';
-            document.getElementById('box-cadastro').style.display = 'block';
-        }
-
-        function mostrarLogin() {
-            document.getElementById('box-cadastro').style.display = 'none';
-            document.getElementById('box-login').style.display = 'block';
-        }
-    </script>
-    {% if erro %}
-    <div id="popup-erro" class="popup">
-        <p> {{ erro }}</p>
-        <span class="close-btn" onclick="fecharPopup()">&times;</span>
-    </div>
-
+    
     <style>
-        .popup {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #e63946; /* Vermelho de erro */
-            color: #fff;
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(230, 57, 70, 0.5);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-weight: bold;
-            animation: slideDown 0.4s ease-out;
+        /* CSS extra para o botão de mostrar senha e esconder os painéis */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
         }
-        .popup p { margin: 0; }
-        .close-btn { cursor: pointer; font-size: 1.5rem; line-height: 1; }
-        .close-btn:hover { color: #ccc; }
         
-        @keyframes slideDown {
-            from { top: -50px; opacity: 0; }
-            to { top: 20px; opacity: 1; }
+        .btn-exibir {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #00a8ff;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            outline: none;
+            transition: 0.3s;
+        }
+        
+        .btn-exibir:hover {
+            color: var(--neon-green);
+            text-shadow: 0 0 8px var(--neon-green);
+        }
+
+        .escondido {
+            display: none;
         }
     </style>
+</head>
+<body>
 
+    <nav class="cyber-nav">
+        <a href="/" class="logo">NEXT<span>MOVE</span></a>
+        <div class="nav-links">
+            <a href="/">> Voltar para Home</a>
+        </div>
+    </nav>
+
+    <div class="auth-wrapper">
+        <div class="auth-box">
+            
+            <!-- ==========================================
+                 PAINEL DE LOGIN
+                 ========================================== -->
+            <div id="painel-login">
+                <div class="auth-header">
+                    <span class="system-status">// AUTH_SYSTEM - v2.0</span>
+                    <h2>ACESSO</h2>
+                </div>
+
+                <form action="/login" method="POST">
+                    <label class="tech-label">EMAIL_ID</label>
+                    <input type="text" name="email" placeholder="usuario@nextmove.art" required>
+
+                    <label class="tech-label">SENHA_HASH</label>
+                    <div class="password-wrapper">
+                        <input type="password" name="senha" id="senha-login" placeholder="........" required>
+                        <button type="button" class="btn-exibir" onclick="mostrarSenha('senha-login', this)">Exibir</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-green btn-auth">AUTENTICAR</button>
+                </form>
+
+                <div style="margin-top: 25px; text-align: center;">
+                    <a href="#" onclick="trocarPainel('cadastro')" style="color: var(--text-muted); font-family: 'Space Mono', monospace; font-size: 0.85rem; text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='#00ff41'" onmouseout="this.style.color='var(--text-muted)'">
+                        > Novo por aqui? Solicitar credenciais (Cadastrar)
+                    </a>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 PAINEL DE CADASTRO (Escondido por padrão)
+                 ========================================== -->
+            <div id="painel-cadastro" class="escondido">
+                <div class="auth-header">
+                    <span class="system-status">// REGISTRO_PROTOCOL - v1.0</span>
+                    <h2>CADASTRO</h2>
+                </div>
+
+                <form action="/cadastro" method="POST">
+                    <label class="tech-label">NOME_COMPLETO</label>
+                    <input type="text" name="nome" placeholder="Digite seu nome..." required>
+
+                    <label class="tech-label">EMAIL_ID</label>
+                    <input type="text" name="email" placeholder="usuario@nextmove.art" required>
+
+                    <label class="tech-label">CRIAR_SENHA</label>
+                    <div class="password-wrapper">
+                        <input type="password" name="senha" id="senha-cadastro" placeholder="........" required>
+                        <button type="button" class="btn-exibir" onclick="mostrarSenha('senha-cadastro', this)">Exibir</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-green btn-auth" style="border-color: #00a8ff; color: #00a8ff; box-shadow: 0 0 10px rgba(0, 168, 255, 0.2), inset 0 0 5px rgba(0, 168, 255, 0.2);">CRIAR CONTA</button>
+                </form>
+
+                <div style="margin-top: 25px; text-align: center;">
+                    <a href="#" onclick="trocarPainel('login')" style="color: var(--text-muted); font-family: 'Space Mono', monospace; font-size: 0.85rem; text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='#00a8ff'" onmouseout="this.style.color='var(--text-muted)'">
+                        > Já tem credenciais? Retornar ao Login
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPTS PARA MÁGICA ACONTECER -->
     <script>
-        function fecharPopup() {
-            document.getElementById('popup-erro').style.display = 'none';
+        // Função para mostrar/ocultar a senha
+        function mostrarSenha(inputId, btn) {
+            let input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                btn.innerText = "Ocultar";
+            } else {
+                input.type = "password";
+                btn.innerText = "Exibir";
+            }
         }
-        setTimeout(fecharPopup, 5000);
+
+        // Função para alternar entre os painéis de Login e Cadastro
+        function trocarPainel(destino) {
+            let painelLogin = document.getElementById('painel-login');
+            let painelCadastro = document.getElementById('painel-cadastro');
+
+            if (destino === 'cadastro') {
+                painelLogin.classList.add('escondido');
+                painelCadastro.classList.remove('escondido');
+            } else {
+                painelCadastro.classList.add('escondido');
+                painelLogin.classList.remove('escondido');
+            }
+        }
     </script>
-    {% endif %}
 </body>
 </html>

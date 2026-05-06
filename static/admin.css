@@ -1,98 +1,208 @@
-/* =========================================
-   TEMA BASE E CABEÇALHO
-========================================= */
-body { background-color: #050505; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
-.header { text-align: center; padding: 25px; background: #000; border-bottom: 2px solid #00ff41; position: relative; transition: 0.5s; }
-.header.mata-mata { border-bottom-color: #ffaa00; }
-.header h1 { margin: 0; font-size: 2.2rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 900; }
-.header.mata-mata h1 { color: #ffaa00; }
+/* ==========================================================================
+   NEXT MOVE - TEMA CYBERPUNK / TERMINAL FUTURISTA
+   Cores: Preto (Fundo), Verde Neon (Primária), Branco (Texto)
+   ========================================================================== */
 
-/* =========================================
-   CONTROLES E BOTÕES
-========================================= */
-.controls { display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 20px; background: #0a0a0a; border-bottom: 1px solid #222; }
-.form-row { display: flex; gap: 10px; }
-input { padding: 10px; border: 1px solid #333; background: #111; color: #fff; border-radius: 4px; width: 250px; }
-.btn { font-weight: bold; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-.btn-green { background: #00ff41; color: #000; }
-.btn-green:hover { background: #00cc33; }
-.btn-red { background: #e63946; color: #fff; }
-.btn-gold { background: #ffaa00; color: #000; font-size: 1.1rem; padding: 15px 30px; box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
-.btn-gold:hover { background: #e69900; transform: scale(1.05); }
+/* 1. Importação de Fontes Futuristas */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
-/* =========================================
-   ZONAS DE CLASSIFICAÇÃO (TOPO DA TELA)
-========================================= */
-.status-zones { display: flex; justify-content: space-around; padding: 20px; background: #050505; gap: 20px; }
-.zone { flex: 1; padding: 15px; border-radius: 6px; border: 1px dashed #333; }
-.zone h3 { margin-top: 0; font-size: 1rem; text-transform: uppercase; text-align: center; letter-spacing: 2px; }
-.zone-advanced h3 { color: #00ff41; }
-.zone-eliminated h3 { color: #e63946; }
-
-.tag-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.player-tag { padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; text-transform: uppercase; }
-.tag-adv { background: rgba(0, 255, 65, 0.2); border: 1px solid #00ff41; color: #00ff41; }
-.tag-elim { background: rgba(230, 57, 70, 0.2); border: 1px solid #e63946; color: #e63946; text-decoration: line-through; }
-.tag-active { background: #222; border: 1px solid #555; color: #fff; }
-.btn-delete { color: #e63946; text-decoration: none; margin-left: 8px; font-weight: 900; }
-
-/* =========================================
-   A ÁRVORE DO CHAVEAMENTO (SCROLL LATERAL)
-========================================= */
-.bracket-container { 
-    display: flex; 
-    overflow-x: auto; /* Permite rolar para o lado */
-    padding: 40px; 
-    gap: 30px; 
-    align-items: flex-start; 
-    min-height: 60vh; 
-    justify-content: flex-start; /* Garante alinhamento à esquerda */
-    white-space: nowrap; /* Impede quebra de linha forçada */
+/* 2. Variáveis de Sistema (Paleta de Cores) */
+:root {
+    --bg-base: #030303;
+    --bg-panel: #0a0a0a;
+    --border-dark: #222222;
+    --text-main: #f0f0f0;
+    --text-muted: #666666;
+    
+    --neon-green: #00ff41;
+    --neon-green-dim: rgba(0, 255, 65, 0.15);
+    
+    --neon-red: #ff003c;
+    --neon-red-dim: rgba(255, 0, 60, 0.15);
+    
+    --neon-gold: #fcee0a;
+    --neon-gold-dim: rgba(252, 238, 10, 0.15);
 }
 
-/* Estilo da barra de rolagem (Chrome, Edge, Safari) */
-.bracket-container::-webkit-scrollbar { height: 10px; }
-.bracket-container::-webkit-scrollbar-track { background: #050505; }
-.bracket-container::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 5px; }
-.playoffs::-webkit-scrollbar-thumb { background: #ffaa00; } /* Dourada no Mata-Mata */
-
-.round-col { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 40px; 
-    min-width: 300px; 
-    flex-shrink: 0; /* Impede que a coluna amasse e corte a tela */
+/* 3. Reset e Base do Site */
+* {
+    box-sizing: border-box;
 }
-.round-title { text-align: center; color: #555; text-transform: uppercase; margin-bottom: 5px; font-size: 1rem; letter-spacing: 3px; font-weight: bold; border-bottom: 1px solid #222; padding-bottom: 10px; }
 
-/* =========================================
-   CAIXAS DE BATALHA E COMPONENTES INTERNOS
-========================================= */
-.pool-box { border: 1px solid #00ff41; border-radius: 4px; background: #0a0a0a; white-space: normal; }
-.pool-header { background: #00ff41; color: #000; text-align: center; font-weight: 900; padding: 5px; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; }
+body {
+    background-color: var(--bg-base) !important;
+    color: var(--text-main) !important;
+    font-family: 'Space Mono', monospace !important; /* Fonte estilo código/sistema */
+    margin: 0;
+    padding: 20px;
+    background-image: 
+        linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px; /* Grade de fundo estilo Matrix */
+}
 
-.match { padding: 12px; border-bottom: 1px solid #1a1a1a; display: flex; flex-direction: column; gap: 10px; }
-.match:last-child { border-bottom: none; }
-.competitors { display: flex; justify-content: space-between; align-items: center; }
-.player { font-size: 1.1rem; flex: 1; text-transform: uppercase; font-weight: bold; }
-.player.winner { color: #00ff41; }
-.player.loser { color: #444; text-decoration: line-through; }
-.vs { color: #00ff41; font-weight: bold; font-size: 0.8rem; padding: 0 10px; }
+/* 4. Tipografia de Títulos (Fonte Quadrada) */
+h1, h2, h3, h4, .header-title {
+    font-family: 'Orbitron', sans-serif !important;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 0;
+}
 
-/* Botões de Decisão (Venceu) */
-.actions { display: flex; gap: 5px; }
-.btn-win { flex: 1; background: transparent; border: 1px dashed #00ff41; color: #00ff41; padding: 8px; font-size: 0.85rem; cursor: pointer; text-align: center; text-decoration: none; border-radius: 3px; text-transform: uppercase; }
-.btn-win:hover { background: #00ff41; color: #000; }
-.status-done { text-align: center; color: #00ff41; font-size: 0.8rem; font-weight: bold; letter-spacing: 2px; }
+.header h1 {
+    color: var(--neon-green) !important;
+    text-shadow: 0 0 10px var(--neon-green-dim), 0 0 20px var(--neon-green-dim);
+    border-bottom: 1px dashed var(--neon-green);
+    padding-bottom: 15px;
+}
 
-/* =========================================
-   TEMA DOURADO (FASE ELIMINATÓRIA / MATA-MATA)
-========================================= */
-.playoffs .pool-box { border-color: #ffaa00; box-shadow: 0 0 10px rgba(255, 170, 0, 0.1); }
-.playoffs .pool-header { background: #ffaa00; color: #000; }
-.playoffs .round-title { color: #ffaa00; border-bottom-color: #ffaa00; }
-.playoffs .vs { color: #ffaa00; }
-.playoffs .player.winner { color: #ffaa00; }
-.playoffs .btn-win { border-color: #ffaa00; color: #ffaa00; }
-.playoffs .btn-win:hover { background: #ffaa00; color: #000; }
-.playoffs .status-done { color: #ffaa00; }
+.header h1::before {
+    content: "// SYS.ADMIN_ ";
+    color: var(--text-muted);
+    font-size: 0.5em;
+    vertical-align: middle;
+}
+
+/* 5. Inputs de Formulário (Visual Painel de Controle) */
+input[type="text"] {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-dark) !important;
+    border-bottom: 2px solid var(--neon-green) !important;
+    color: var(--neon-green) !important;
+    font-family: 'Space Mono', monospace !important;
+    padding: 10px 15px !important;
+    outline: none;
+    transition: 0.3s;
+    border-radius: 0 !important; /* Bordas retas cyber */
+}
+
+input[type="text"]:focus {
+    box-shadow: 0 5px 15px -5px var(--neon-green);
+    background-color: #000 !important;
+}
+
+/* 6. Botões Futuristas */
+.btn {
+    font-family: 'Orbitron', sans-serif !important;
+    font-weight: bold !important;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 10px 20px !important;
+    background: transparent !important;
+    border-radius: 0 !important; /* Botões retos */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Verde (Ações principais) */
+.btn-green, .btn-votar, .btn-win {
+    color: var(--neon-green) !important;
+    border: 1px solid var(--neon-green) !important;
+    box-shadow: 0 0 10px var(--neon-green-dim), inset 0 0 5px var(--neon-green-dim);
+}
+.btn-green:hover, .btn-votar:hover, .btn-win:hover {
+    background: var(--neon-green) !important;
+    color: #000 !important;
+    box-shadow: 0 0 20px var(--neon-green), inset 0 0 10px var(--neon-green);
+}
+
+/* Vermelho (Reset/Apagar) */
+.btn-red {
+    color: var(--neon-red) !important;
+    border: 1px solid var(--neon-red) !important;
+    box-shadow: 0 0 10px var(--neon-red-dim), inset 0 0 5px var(--neon-red-dim);
+}
+.btn-red:hover {
+    background: var(--neon-red) !important;
+    color: #fff !important;
+    box-shadow: 0 0 20px var(--neon-red);
+}
+
+/* Dourado (Gerar Chave) */
+.btn-gold {
+    color: var(--neon-gold) !important;
+    border: 1px solid var(--neon-gold) !important;
+    box-shadow: 0 0 10px var(--neon-gold-dim), inset 0 0 5px var(--neon-gold-dim);
+}
+.btn-gold:hover {
+    background: var(--neon-gold) !important;
+    color: #000 !important;
+    box-shadow: 0 0 20px var(--neon-gold);
+}
+
+/* 7. Caixas de Chaveamento (Bracket Sections) */
+.bracket-section {
+    background: var(--bg-panel) !important;
+    padding: 20px !important;
+    border-radius: 0 !important; /* Remove bordas arredondadas */
+    margin-bottom: 30px !important;
+    border: 1px solid var(--border-dark) !important;
+    border-top: 3px solid; /* Linha cyber no topo */
+    position: relative;
+}
+
+/* Marcador estilo código nos títulos das seções */
+.bracket-section h2::before {
+    content: ">_ ";
+    opacity: 0.5;
+}
+
+.winners-bracket { border-top-color: var(--neon-green) !important; box-shadow: 0 -5px 20px var(--neon-green-dim); }
+.winners-bracket h2 { color: var(--neon-green) !important; }
+
+.losers-bracket { border-top-color: var(--neon-red) !important; box-shadow: 0 -5px 20px var(--neon-red-dim); }
+.losers-bracket h2 { color: var(--neon-red) !important; }
+
+.grand-final { border-top-color: var(--neon-gold) !important; background: #080800 !important; box-shadow: 0 -5px 20px var(--neon-gold-dim); }
+.grand-final h2 { color: var(--neon-gold) !important; }
+
+/* 8. Caixas das Batalhas (Lutas) */
+.match-box, .batalha-card {
+    background: #000 !important;
+    border: 1px solid #333 !important;
+    padding: 15px !important;
+    border-radius: 0 !important;
+}
+
+.match-box h4, .batalha-header {
+    font-family: 'Space Mono', monospace !important;
+    color: var(--text-muted) !important;
+    border-bottom: 1px solid #222;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+/* 9. Nomes dos Jogadores */
+.player, .competidor-row {
+    background: var(--bg-panel) !important;
+    padding: 8px 10px !important;
+    margin-bottom: 5px !important;
+    border-radius: 0 !important;
+    border-left: 3px solid #444 !important;
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+}
+
+.player.tbd, .fantasma {
+    color: #444 !important;
+    font-family: 'Space Mono', monospace !important;
+}
+
+/* Destaque para quem Venceu */
+.player.winner, .vencedor-destaque {
+    border-left-color: var(--neon-green) !important;
+    color: var(--neon-green) !important;
+    background: var(--neon-green-dim) !important;
+    text-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+}
+
+/* 10. Tags de Cadastrados */
+.tag-container > div {
+    border-radius: 0 !important;
+    font-family: 'Space Mono', monospace !important;
+    background: #000 !important;
+    border: 1px solid var(--neon-green) !important;
+    color: var(--text-main) !important;
+}

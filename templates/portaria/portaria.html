@@ -4,43 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel da Portaria | Next Move</title>
+    
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
     <style>
-        body { background-color: #050505; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
-        .btn-painel { display: block; width: 90%; max-width: 400px; margin: 15px auto; padding: 20px; font-size: 1.2rem; font-weight: bold; text-transform: uppercase; background: #222; color: #fff; text-decoration: none; border: 2px solid #444; border-radius: 10px; }
-        .btn-painel:hover { background: #00ff41; color: #000; border-color: #00ff41; }
-        .btn-venda { background: #ffaa00; color: #000; border-color: #ffaa00; }
-        .btn-venda:hover { background: #e69500; }
+        .portaria-container { max-width: 900px; margin: 50px auto; padding: 20px; }
+        
+        .grid-portaria { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; 
+            margin-top: 40px; 
+        }
+        
+        .card-portaria {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dark);
+            border-top: 3px solid #00a8ff; /* Azul Ciano de sistema */
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            transition: 0.3s;
+            display: flex;
+            flex-'direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 160px;
+        }
+        
+        .card-portaria:hover { 
+            box-shadow: 0 5px 20px rgba(0, 168, 255, 0.2); 
+            transform: translateY(-5px); 
+        }
+        
+        .card-portaria h3 { 
+            color: #fff; 
+            margin-bottom: 10px; 
+            font-size: 1.2rem; 
+        }
+        
+        .card-portaria p { 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+            font-family: 'Space Mono', monospace; 
+        }
     </style>
 </head>
 <body>
-    <h1>🛡️ Controle de Portaria</h1>
-    <p>Logado como: <strong>{{ nivel|upper }}</strong></p>
 
-    <h3>Fazer Check-in</h3>
-    
-    <a href="{{ url_for('portaria.pagina_checkin', tipo_lista='aula_1') }}" class="btn-painel">
-        AULA 1
-    </a>
+    <!-- NAVBAR ESPECÍFICA PARA A PORTARIA -->
+    <nav class="cyber-nav">
+        <a href="/" class="logo">NEXT<span>MOVE</span></a>
+        
+        <div class="nav-links">
+            <span style="color: var(--neon-gold); font-family: 'Space Mono', monospace;">// SYS_PORTARIA_ONLINE</span>
+            <!-- Botão de Sair em vermelho pra ficar com cara de painel de controle -->
+            <a href="/logout" class="btn btn-red" style="margin-left: 20px;">ENCERRAR SESSÃO</a>
+        </div>
+    </nav>
 
-    <a href="{{ url_for('portaria.pagina_checkin', tipo_lista='aula_2') }}" class="btn-painel">
-        AULA 2
-    </a>
+    <div class="portaria-container">
+        <div style="text-align: center;">
+            <h1>CONTROLE DE ACESSO</h1>
+            <span style="color: #00a8ff; font-family: 'Space Mono', monospace;">// SELECIONE O PROTOCOLO DESEJADO</span>
+        </div>
 
-    <a href="{{ url_for('portaria.pagina_checkin', tipo_lista='evento_geral') }}" class="btn-painel">
-        ENTRADA GERAL (EVENTO)
-    </a>
+        <div class="grid-portaria">
+            <!-- CHECK-IN -->
+            <a href="/portaria/checkin" class="card-portaria">
+                <h3>> CHECK-IN INGRESSOS_</h3>
+                <p>Validar QR Code ou aprovar entradas antecipadas</p>
+            </a>
+            
+            <!-- VENDA NA PORTA (Destaque em Verde) -->
+            <a href="/portaria/venda_porta" class="card-portaria" style="border-top-color: var(--neon-green);">
+                <h3 style="color: var(--neon-green);">> VENDA NA PORTA_</h3>
+                <p>Registrar nova venda de ingresso na bilheteria</p>
+            </a>
 
-    <a href="{{ url_for('portaria.pagina_checkin', tipo_lista='batalhas') }}" class="btn-painel">
-        COMPETIDORES (BATALHAS)
-    </a>
+            <!-- LISTA GERAL -->
+            <a href="/portaria/venda_antecipada" class="card-portaria" style="border-top-color: var(--neon-gold);">
+                <h3 style="color: var(--neon-gold);">> LISTA GERAL_</h3>
+                <p>Consultar todos os ingressos emitidos e nomes</p>
+            </a>
+        </div>
+    </div>
 
-    <hr style="border-color: #333; margin: 30px 0;">
-
-    <h3>Bilheteria & Gestão</h3>
-    <a href="{{ url_for('portaria.venda_porta') }}" class="btn-painel btn-venda">💰 Registrar Nova Venda na Porta</a>
-    <a href="{{ url_for('portaria.venda_antecipada') }}" class="btn-painel" style="background: #005bb5; border-color: #005bb5;">📥 Lançar Venda Antecipada</a>
-    
-    <br>
-    <a href="/" style="color: #888;">Voltar ao site principal</a>
 </body>
 </html>
