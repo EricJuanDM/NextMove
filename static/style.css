@@ -157,3 +157,103 @@ input[type="text"]:focus, input[type="password"]:focus {
     color: var(--neon-green);
     text-shadow: 0 0 8px var(--neon-green);
 }   
+
+/* ==========================================================================
+   MENU HAMBÚRGUER E PERFIL DO USUÁRIO
+   ========================================================================== */
+
+/* 1. Botão Hambúrguer (Escondido no PC) */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    z-index: 10000;
+}
+
+.menu-toggle div {
+    width: 25px;
+    height: 3px;
+    background-color: var(--neon-green);
+    transition: 0.3s;
+}
+
+/* 2. Avatar (A Bolinha do Usuário) */
+.user-profile {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-panel);
+    border: 2px solid var(--neon-green);
+    color: var(--neon-green);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--neon-green-dim);
+    transition: 0.3s;
+}
+
+.user-avatar:hover {
+    box-shadow: 0 0 15px var(--neon-green);
+}
+
+/* 3. Menu de Sair (Dropdown) */
+.profile-dropdown {
+    position: absolute;
+    top: 55px;
+    right: 0;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dark);
+    border-top: 2px solid var(--neon-red);
+    padding: 10px;
+    display: none; /* Escondido por padrão */
+    min-width: 120px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    z-index: 10001;
+}
+
+.profile-dropdown.active {
+    display: block;
+}
+
+.profile-dropdown a {
+    color: var(--neon-red) !important;
+    font-size: 0.8rem !important;
+    text-decoration: none;
+    display: block;
+    padding: 5px;
+}
+
+/* 4. AJUSTES PARA CELULAR (RESPONSIVIDADE) */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex; /* Aparece no celular */
+    }
+
+    .nav-links {
+        position: fixed;
+        right: -100%; /* Escondido para fora da tela */
+        top: 0;
+        height: 100vh;
+        width: 70%;
+        background:  rgba(0, 0, 0, 0.95);
+        flex-direction: column;
+        justify-content: center;
+        padding: 50px;
+        transition: 0.4s;
+        border-left: 2px solid var(--neon-green);
+    }
+
+    .nav-links.active {
+        right: 0; /* Desliza para dentro */
+    }
+}

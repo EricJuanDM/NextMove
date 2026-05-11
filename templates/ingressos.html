@@ -9,26 +9,33 @@
 </head>
 <body>
     <header>
-        <nav>
-            <div class="logo"><a href="{{ url_for('home') }}" style="text-decoration: none; color: inherit;">NEXT<span>MOVE</span></a></div>
+        <nav class="cyber-nav">
+            <a href="/" class="logo">NEXT<span>MOVE</span></a>
             
-            <div class="menu-toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <div></div>
+                <div></div>
+                <div></div>
             </div>
 
-            <ul class="nav-links">
-                <li><a href="{{ url_for('home') }}">O Evento</a></li>
-                <li><a href="{{ url_for('cronograma') }}">Cronograma</a></li>
-                
-                {% if 'usuario' in session %}
-                    <li><div class="user-avatar">{{ session['usuario'][0] | upper }}</div></li>
-                    <li><a href="{{ url_for('logout') }}" style="font-size: 0.8rem; color: #aaa;">Sair</a></li>
+            <div class="nav-links" id="navLinks">
+                <a href="/#evento">O Evento</a>
+                <a href="/cronograma">Cronograma</a>
+                <a href="/votacao">Votar nas Batalhas</a>
+
+                {% if session.get('usuario_id') %}
+                    <div class="user-profile">
+                        <div class="user-avatar" onclick="toggleDropdown()">
+                            {{ session.get('usuario_nome')[0] | upper }}
+                        </div>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <a href="/logout">// SAIR_SISTEMA</a>
+                        </div>
+                    </div>
                 {% else %}
-                    <li><a href="{{ url_for('login') }}" class="btn-outline">Login</a></li>
+                    <a href="/login" class="btn btn-green">LOGIN</a>
                 {% endif %}
-            </ul>
+            </div>
         </nav>
     </header>
 
@@ -86,4 +93,25 @@
         });
     </script>
 </body>
+<script>
+        // Função para abrir/fechar menu no celular
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // Função para abrir/fechar o menu de "Sair"
+        function toggleDropdown() {
+            document.getElementById('profileDropdown').classList.toggle('active');
+        }
+
+        // Fecha o menu de sair se clicar fora da bolinha
+        window.onclick = function(event) {
+            if (!event.target.matches('.user-avatar')) {
+                var dropdown = document.getElementById("profileDropdown");
+                if (dropdown && dropdown.classList.contains('active')) {
+                    dropdown.classList.remove('active');
+                }
+            }
+        }
+    </script>
 </html>

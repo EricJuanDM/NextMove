@@ -49,11 +49,29 @@
     <nav class="cyber-nav">
         <a href="/" class="logo">NEXT<span>MOVE</span></a>
         
-        <div class="nav-links">
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+
+        <div class="nav-links" id="navLinks">
             <a href="/#evento">O Evento</a>
             <a href="/cronograma">Cronograma</a>
             <a href="/votacao">Votar nas Batalhas</a>
-            <a href="/login" class="btn btn-green">LOGIN</a>
+
+            {% if session.get('usuario_id') %}
+                <div class="user-profile">
+                    <div class="user-avatar" onclick="toggleDropdown()">
+                        {{ session.get('usuario_nome', 'U')[0] | upper }}
+                    </div>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a href="/logout">// SAIR_SISTEMA</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="/login" class="btn btn-green">LOGIN</a>
+            {% endif %}
         </div>
     </nav>
 
@@ -84,4 +102,25 @@
     </div>
 
 </body>
+<script>
+        // Função para abrir/fechar menu no celular
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // Função para abrir/fechar o menu de "Sair"
+        function toggleDropdown() {
+            document.getElementById('profileDropdown').classList.toggle('active');
+        }
+
+        // Fecha o menu de sair se clicar fora da bolinha
+        window.onclick = function(event) {
+            if (!event.target.matches('.user-avatar')) {
+                var dropdown = document.getElementById("profileDropdown");
+                if (dropdown && dropdown.classList.contains('active')) {
+                    dropdown.classList.remove('active');
+                }
+            }
+        }
+    </script>
 </html>
