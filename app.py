@@ -1,6 +1,6 @@
 import psycopg2
 from flask import Flask, render_template, request, redirect, url_for, session
-
+from datetime import datetime
 # Importando as "Gavetas" (Blueprints)
 from votacao import votacao_bp
 from portaria import portaria_bp
@@ -53,7 +53,7 @@ init_db()
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('PUBLICA/index.html')
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
@@ -72,7 +72,7 @@ def cadastro():
             
             if usuario_existente:
                 conn.close()
-                return render_template('login.html', erro="Não foi possível cadastrar. Este e-mail ou nome já estão em uso.")
+                return render_template('PUBLICA/login.html', erro="Não foi possível cadastrar. Este e-mail ou nome já estão em uso.")
 
             # 2. Se o radar não apitou, cadastra o usuário
             cursor.execute('''
@@ -87,8 +87,7 @@ def cadastro():
         except Exception as e:
             return f" Erro ao tentar criar a conta: {e}"
 
-    return render_template('cadastro.html')
-
+    return render_template('PUBLICA/cadastro.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -105,12 +104,12 @@ def login():
             usuario = cursor.fetchone()
             
             if not usuario:
-                return render_template('login.html', erro="Essa conta não existe. Por favor, faça seu cadastro.")
+                return render_template('PUBLICA/login.html', erro="Essa conta não existe. Por favor, faça seu cadastro.")
             
             # 2. Conferir a senha
             senha_banco = usuario[4]
             if senha_digitada != senha_banco:
-                return render_template('login.html', erro="Email ou senha incorretos.")
+                return render_template('PUBLICA/login.html', erro="Email ou senha incorretos.")
                 
             # 3. Faz o login!
             session['usuario_id'] = usuario[0] 
@@ -125,11 +124,11 @@ def login():
                 
         except Exception as e:
             print(f"Erro interno no login: {e}")
-            return render_template('login.html', erro="Erro ao conectar com o banco.")
+            return render_template('PUBLICA/login.html', erro="Erro ao conectar com o banco.")
         finally:
             conn.close()
 
-    return render_template('login.html')
+    return render_template('PUBLICA/login.html')
 
 @app.route('/completar_perfil', methods=['GET', 'POST'])
 def completar_perfil():
@@ -149,7 +148,7 @@ def completar_perfil():
         except Exception as e:
             return f" Erro ao salvar o nome no banco de dados: {e}"
 
-    return render_template('completar_perfil.html')
+    return render_template('PUBLICA/completar_perfil.html')
 
 @app.route('/logout')
 def logout():
@@ -160,11 +159,11 @@ def logout():
 def ingressos():
     if 'usuario' not in session:
         return redirect(url_for('login'))
-    return render_template('ingressos.html')
+    return render_template('EVENTO/ingressos.html')
 
 @app.route('/cronograma')
 def cronograma():
-    return render_template('cronograma.html')
+    return render_template('EVENTO/cronograma.html')
 
 @app.route('/meus_ingressos')
 def meus_ingressos():
@@ -183,11 +182,113 @@ def meus_ingressos():
             ORDER BY checkin_realizado ASC, tipo_ingresso ASC
         ''', (usuario_id,))
         ingressos = cursor.fetchall()
-        return render_template('meus_ingressos.html', ingressos=ingressos)
+        return render_template('EVENTO/meus_ingressos.html', ingressos=ingressos)
     except Exception as e:
         return f"Erro ao buscar ingressos: {e}"
     finally:
         conn.close()
+
+# ROTA PÚBLICA: Onde todos veem a agenda
+@app.route('/agenda')
+def pagina_agenda():
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    
+    # O SELECT * garante que as novas colunas (origem e subcategoria) também venham para o HTML!
+    cursor.execute("SELECT * FROM agenda WHERE data_evento >= CURRENT_DATE ORDER BY data_evento ASC")
+    eventos_db = cursor.fetchall()
+    
+    conn.close()
+    return render_template('PUBLICA/agenda.html', eventos=eventos_db)
+
+# ROTA ADMIN: Formulário de Gerenciamento (Só Superadmin)
+@app.route('/admin/agenda', methods=['GET', 'POST'])
+def admin_agenda():
+    nivel = session.get('nivel_acesso')
+    if nivel != 'superadmin': 
+        return redirect('/')
+
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        nome = request.form.get('evento_nome')
+        data = request.form.get('data_evento')
+        tipo = request.form.get('tipo')
+        local = request.form.get('local')
+        link = request.form.get('link')
+
+        cursor.execute('''
+            INSERT INTO agenda (evento_nome, data_evento, tipo, local, link_inscricao)
+            VALUES (%s, %s, %s, %s, %s)
+        ''', (nome, data, tipo, local, link))
+        conn.commit()
+        return redirect('/admin/agenda')
+
+    cursor.execute("SELECT * FROM agenda ORDER BY data_evento DESC")
+    todos_eventos = cursor.fetchall()
+    conn.close()
+    
+    return render_template('ADMINISTRACAO/agenda_admin.html', eventos=todos_eventos)
+
+# ROTA PARA DELETAR EVENTO
+@app.route('/admin/agenda/deletar/<int:id>')
+def deletar_evento(id):
+    if session.get('nivel_acesso') != 'superadmin': return redirect('/')
+    
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM agenda WHERE id = %s", (id,))
+    conn.commit()
+    conn.close()
+    return redirect('/admin/agenda')
+
+# --- ROTAS DO HALL DA FAMA ---
+
+@app.route('/titulos')
+def titulos():
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    cursor.execute("SELECT titulo, colocacao, categoria, ano, descricao FROM conquistas ORDER BY ano DESC")
+    conquistas_db = cursor.fetchall()
+    conn.close()
+    return render_template('PUBLICA/titulos.html', conquistas=conquistas_db)
+
+@app.route('/admin/conquistas', methods=['GET', 'POST'])
+def admin_conquistas():
+    if session.get('nivel_acesso') != 'superadmin': return redirect('/')
+    
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        titulo = request.form.get('titulo')
+        colocacao = request.form.get('colocacao')
+        categoria = request.form.get('categoria')
+        ano = request.form.get('ano')
+        descricao = request.form.get('descricao')
+
+        cursor.execute('''
+            INSERT INTO conquistas (titulo, colocacao, categoria, ano, descricao)
+            VALUES (%s, %s, %s, %s, %s)
+        ''', (titulo, colocacao, categoria, ano, descricao))
+        conn.commit()
+        return redirect('/admin/conquistas')
+
+    cursor.execute("SELECT * FROM conquistas ORDER BY ano DESC")
+    todas = cursor.fetchall()
+    conn.close()
+    return render_template('ADMINISTRACAO/conquistas_admin.html', conquistas=todas)
+
+@app.route('/admin/conquistas/deletar/<int:id>')
+def deletar_conquista(id):
+    if session.get('nivel_acesso') != 'superadmin': return redirect('/')
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM conquistas WHERE id = %s", (id,))
+    conn.commit()
+    conn.close()
+    return redirect('/admin/conquistas')
 
 if __name__ == '__main__':
     app.run(debug=True)

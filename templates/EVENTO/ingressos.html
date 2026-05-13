@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Ingressos | Next Move{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos exclusivos para a grelha de ingressos */
+    .tickets-container { max-width: 1200px; margin: 50px auto; padding: 20px; }
+    .tickets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 40px; }
+    .ticket-card { background: var(--bg-panel); border: 1px solid var(--border-dark); border-top: 3px solid var(--neon-green); padding: 30px 25px; display: flex; flex-direction: column; transition: 0.3s; }
+    .ticket-card:hover { box-shadow: 0 5px 20px var(--neon-green-dim); transform: translateY(-5px); }
+    .ticket-price { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: #fff; margin: 15px 0; }
+    .ticket-price span { font-size: 1.2rem; color: var(--neon-green); vertical-align: middle; }
+    .ticket-desc { color: var(--text-muted); font-size: 0.9rem; font-family: 'Space Mono', monospace; flex-grow: 1; margin-bottom: 25px; line-height: 1.5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tickets-container">
+    <h1 style="text-align: center; color: #fff; font-family: 'Orbitron', sans-serif; margin-bottom: 10px;">GARANTA O SEU <span>LUGAR</span></h1>
+    <p style="text-align: center; color: var(--text-muted); font-family: 'Space Mono', monospace;">// Escolha a melhor opção para curtir o evento: aprender, assistir ou batalhar!</p>
+
+    <div class="tickets-grid">
+        
+        <div class="ticket-card">
+            <span class="tech-label" style="color: var(--neon-green); font-size: 0.8rem; margin: 0;">WORKSHOP 10H</span>
+            <h3 style="color: #fff; margin-top: 5px; font-family: 'Orbitron', sans-serif;">RAILA COSTA</h3>
+            <div class="ticket-price"><span>R$</span> 30,00</div>
+            <p class="ticket-desc">Acesso ao evento e à primeira aula do dia - foco em coreografia.</p>
+            <a href="https://wa.me/5541991626801?text=Olá!%20Gostaria%20de%20comprar%20o%20Workshop%20das%2010h%20com%20a%20Raila%20Costa." target="_blank" class="btn btn-green" style="text-align: center; width: 100%;">COMPRAR AULA 1</a>
+        </div>
+
+        <div class="ticket-card">
+            <span class="tech-label" style="color: var(--neon-green); font-size: 0.8rem; margin: 0;">WORKSHOP 11H30</span>
+            <h3 style="color: #fff; margin-top: 5px; font-family: 'Orbitron', sans-serif;">SOL DE JESUS</h3>
+            <div class="ticket-price"><span>R$</span> 30,00</div>
+            <p class="ticket-desc">Acesso ao evento e à segunda aula do dia - foco em Hip Hop.</p>
+            <a href="https://wa.me/5541991626801?text=Olá!%20Gostaria%20de%20comprar%20o%20Workshop%20das%2011h30%20com%20a%20Sol%20de%20Jesus." target="_blank" class="btn btn-green" style="text-align: center; width: 100%;">COMPRAR AULA 2</a>
+        </div>
+
+        <div class="ticket-card" style="border-top-color: var(--neon-gold);">
+            <span class="tech-label" style="color: var(--neon-gold); font-size: 0.8rem; margin: 0;">COMBO 2 AULAS</span>
+            <h3 style="color: #fff; margin-top: 5px; font-family: 'Orbitron', sans-serif;">RAILA + SOL</h3>
+            <div class="ticket-price" style="color: var(--neon-gold);"><span>R$</span> 55,00</div>
+            <p class="ticket-desc">Acesso às duas aulas com um desconto especial para aproveitar tudo.</p>
+            <a href="https://wa.me/5541991626801?text=Olá!%20Quero%20aproveitar%20o%20Combo%20das%202%20Aulas%20(Raila%20+%20Sol)." target="_blank" class="btn btn-green" style="text-align: center; width: 100%; border-color: var(--neon-gold); color: var(--neon-gold); box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);">COMPRAR COMBO</a>
+        </div>
+
+        <div class="ticket-card" style="border-top-color: #00a8ff;">
+            <span class="tech-label" style="color: #00a8ff; font-size: 0.8rem; margin: 0;">ENTRADA DO EVENTO</span>
+            <h3 style="color: #fff; margin-top: 5px; font-family: 'Orbitron', sans-serif;">PÚBLICO GERAL</h3>
+            <div class="ticket-price" style="color: #00a8ff;"><span>R$</span> 07,00</div>
+            <p class="ticket-desc">Entrada exclusiva no SUNDAY, com direito a assistir à batalha e a tudo o que vai rolar fora da sala principal.</p>
+            <a href="https://wa.me/5541991626801?text=Oi%21%20Tudo%20bem%3F%20Quero%20comprar%20a%20minha%20entrada%20para%20o%20SUNDAY." target="_blank" class="btn btn-green" style="text-align: center; width: 100%; border-color: #00a8ff; color: #00a8ff; box-shadow: 0 0 10px rgba(0, 168, 255, 0.1);">ASSISTIR BATALHA</a>
+        </div>
+
+        <div class="ticket-card" style="border-top-color: var(--neon-red);">
+            <span class="tech-label" style="color: var(--neon-red); font-size: 0.8rem; margin: 0;">INSCRIÇÃO BATALHA</span>
+            <h3 style="color: #fff; margin-top: 5px; font-family: 'Orbitron', sans-serif;">COMPETIDORES</h3>
+            <div class="ticket-price" style="color: var(--neon-red);"><span>R$</span> 15,00</div>
+            <p class="ticket-desc">Entrada exclusiva para participar da batalha. O palco é seu, mostre a sua dança!</p>
+            <a href="https://wa.me/5541991626801?text=Ol%C3%A1%21%20Gostaria%20de%20pagar%20a%20Inscri%C3%A7%C3%A3o%20de%20Batalha%20do%20SUNDAY." target="_blank" class="btn btn-green" style="text-align: center; width: 100%; border-color: var(--neon-red); color: var(--neon-red); box-shadow: 0 0 10px rgba(255, 0, 60, 0.1);">PARTICIPAR NA BATALHA</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

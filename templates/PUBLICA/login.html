@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Sistema de Autenticação | Next Move{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <style>
+        .password-wrapper { position: relative; width: 100%; }
+        .btn-exibir {
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            background: transparent; border: none; color: #00a8ff; font-family: 'Space Mono', monospace;
+            font-size: 0.75rem; cursor: pointer; text-transform: uppercase; transition: 0.3s;
+        }
+        .btn-exibir:hover { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); }
+        .escondido { display: none; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-box">
+        
+        <div id="painel-login">
+            <div class="auth-header">
+                <span class="system-status">// AUTH_SYSTEM - v2.0</span>
+                <h2>ACESSO</h2>
+            </div>
+            
+            {% if erro %}
+            <div style="background: rgba(255, 0, 60, 0.1); border-left: 3px solid var(--neon-red); padding: 10px; margin-bottom: 20px; color: var(--neon-red); font-family: 'Space Mono', monospace; font-size: 0.8rem;">
+                > ERRO: {{ erro }}
+            </div>
+            {% endif %}
+
+            <form action="/login" method="POST">
+                <label class="tech-label">EMAIL_ID</label>
+                <input type="text" name="email" placeholder="usuario@nextmove.art" required>
+
+                <label class="tech-label">SENHA_HASH</label>
+                <div class="password-wrapper">
+                    <input type="password" name="senha" id="senha-login" placeholder="........" required>
+                    <button type="button" class="btn-exibir" onclick="mostrarSenha('senha-login', this)">Exibir</button>
+                </div>
+
+                <button type="submit" class="btn btn-green btn-auth">AUTENTICAR</button>
+            </form>
+
+            <div style="margin-top: 25px; text-align: center;">
+                <a href="#" onclick="trocarPainel('cadastro')" style="color: var(--text-muted); font-family: 'Space Mono', monospace; font-size: 0.85rem; text-decoration: none; transition: 0.3s;">
+                    > Novo por aqui? Solicitar credenciais (Cadastrar)
+                </a>
+            </div>
+        </div>
+
+        <div id="painel-cadastro" class="escondido">
+            <div class="auth-header">
+                <span class="system-status">// REGISTRO_PROTOCOL - v1.0</span>
+                <h2>CADASTRO</h2>
+            </div>
+
+            <form action="/cadastro" method="POST">
+                <label class="tech-label">NOME_COMPLETO</label>
+                <input type="text" name="nome_completo" placeholder="Digite seu nome..." required>
+
+                <label class="tech-label">EMAIL_ID</label>
+                <input type="text" name="email" placeholder="usuario@nextmove.art" required>
+
+                <label class="tech-label">CRIAR_SENHA</label>
+                <div class="password-wrapper">
+                    <input type="password" name="senha" id="senha-cadastro" placeholder="........" required>
+                    <button type="button" class="btn-exibir" onclick="mostrarSenha('senha-cadastro', this)">Exibir</button>
+                </div>
+
+                <button type="submit" class="btn btn-green btn-auth" style="border-color: #00a8ff; color: #00a8ff; box-shadow: 0 0 10px rgba(0, 168, 255, 0.2), inset 0 0 5px rgba(0, 168, 255, 0.2);">CRIAR CONTA</button>
+            </form>
+
+            <div style="margin-top: 25px; text-align: center;">
+                <a href="#" onclick="trocarPainel('login')" style="color: var(--text-muted); font-family: 'Space Mono', monospace; font-size: 0.85rem; text-decoration: none; transition: 0.3s;">
+                    > Já tem credenciais? Retornar ao Login
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function mostrarSenha(inputId, btn) {
+        let input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text"; btn.innerText = "Ocultar";
+        } else {
+            input.type = "password"; btn.innerText = "Exibir";
+        }
+    }
+    function trocarPainel(destino) {
+        let pLogin = document.getElementById('painel-login');
+        let pCadastro = document.getElementById('painel-cadastro');
+        if (destino === 'cadastro') {
+            pLogin.classList.add('escondido'); pCadastro.classList.remove('escondido');
+        } else {
+            pCadastro.classList.add('escondido'); pLogin.classList.remove('escondido');
+        }
+    }
+</script>
+{% endblock %}

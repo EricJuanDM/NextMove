@@ -1,0 +1,82 @@
+/* AGENDA E PORTFÓLIO - TEMA CYBERPUNK */
+
+.page-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    text-align: center;
+    margin: 40px 0;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.page-title span {
+    color: var(--neon-green);
+    text-shadow: 0 0 20px var(--neon-green-dim);
+}
+
+/* Container de Agenda (Grid igual ao da foto) */
+.agenda-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Calendário Estilo Terminal */
+.cyber-calendar {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dark);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    color: var(--neon-green);
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--border-dark);
+    padding-bottom: 10px;
+}
+
+/* Cards de Próximos Eventos */
+.event-card {
+    background: linear-gradient(90deg, rgba(0, 255, 65, 0.05), transparent);
+    border: 1px solid var(--border-dark);
+    border-left: 4px solid var(--neon-green);
+    padding: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.event-date-box {
+    text-align: center;
+    min-width: 80px;
+}
+
+.event-date-box .day { font-size: 2rem; font-weight: bold; color: #fff; }
+.event-date-box .month { font-size: 0.8rem; color: var(--neon-green); text-transform: uppercase; }
+
+/* Botão de Inscrição Estilo Azure */
+.btn-inscrever {
+    border: 1px solid var(--neon-green);
+    color: var(--neon-green);
+    background: transparent;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn-inscrever:hover {
+    background: var(--neon-green);
+    color: #000;
+}

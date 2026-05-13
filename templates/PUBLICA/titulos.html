@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Conquistas | Next Move{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Hall da <span>Fama.</span></h1>
+
+<div class="info-section">
+    <div class="cyber-card" style="display: flex; gap: 30px; align-items: center; border-left-color: var(--neon-gold);">
+        <div style="font-size: 3rem; text-shadow: 0 0 10px var(--neon-gold);">🏆</div>
+        <div>
+            <span class="tech-label" style="color: var(--neon-gold);">2025 // FREESTYLE</span>
+            <h2 style="color: #fff; margin: 10px 0;">Campeões do CWB Hip Hop</h2>
+            <p style="color: var(--text-muted);">1º Lugar na categoria Open Style em Curitiba. Representando a essência da rua no palco principal.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

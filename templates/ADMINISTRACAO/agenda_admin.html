@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciar Agenda | Next Move{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="flex-direction: column; gap: 30px; padding: 50px 20px;">
+    
+    <div class="auth-box" style="border-top-color: var(--neon-green);">
+        <div class="auth-header">
+            <span class="system-status" style="color: var(--neon-green);">// AGENDA_UPDATE_PROTOCOL</span>
+            <h2>NOVO EVENTO</h2>
+        </div>
+        
+        <form method="POST">
+            <label class="tech-label">NOME_DO_EVENTO</label>
+            <input type="text" name="evento_nome" placeholder="Ex: Batalha de Freestyle" required>
+
+            <label class="tech-label">DATA_EVENTO</label>
+            <input type="date" name="data_evento" required style="background: var(--bg-panel); color: var(--neon-green); border: 1px solid var(--border-dark); padding: 10px; width: 100%; font-family: 'Space Mono', monospace; margin-bottom: 20px;">
+
+            <label class="tech-label">TIPO_CATEGORIA</label>
+            <select name="tipo" style="width: 100%; background: #000; color: var(--neon-green); border: 1px solid var(--border-dark); padding: 12px; margin-bottom: 20px; font-family: 'Space Mono', monospace;">
+                <option value="BATALHA">BATALHA</option>
+                <option value="WORKSHOP">WORKSHOP</option>
+                <option value="COMPETIÇÃO">COMPETIÇÃO</option>
+                <option value="MEETUP">MEETUP</option>
+            </select>
+
+            <label class="tech-label">LOCAL_COORDENADAS</label>
+            <input type="text" name="local" placeholder="Ex: PUCPR - Bloco Amarelo">
+
+            <label class="tech-label">LINK_INSCRICAO (OPCIONAL)</label>
+            <input type="text" name="link" placeholder="https://..." style="margin-bottom: 20px;">
+
+            <label class="tech-label">TIPO_DE_MISSÃO</label>
+            <select name="origem_evento" onchange="toggleSubcategoria(this.value)" style="width: 100%; background: #000; color: var(--neon-green); border: 1px solid var(--border-dark); padding: 12px; margin-bottom: 20px; font-family: 'Space Mono', monospace; outline: none;">
+                <option value="PROPRIO">EVENTO DO GRUPO (HOST)</option>
+                <option value="PARTICIPACAO">PARTICIPAÇÃO EXTERNA (FESTIVAL)</option>
+            </select>
+
+            <div id="campo-subcategoria" style="display: none;">
+                <label class="tech-label">MODALIDADE_DA_APRESENTAÇÃO</label>
+                <select name="subcategoria_danca" style="width: 100%; background: #000; color: var(--neon-gold); border: 1px solid var(--border-dark); padding: 12px; margin-bottom: 20px; font-family: 'Space Mono', monospace; outline: none;">
+                    <option value="Solo">SOLO</option>
+                    <option value="Conjunto">CONJUNTO</option>
+                    <option value="Grupo Grande">GRUPO GRANDE</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-green btn-auth">PUBLICAR NA AGENDA</button>
+        </form>
+    </div>
+
+    <div class="auth-box" style="max-width: 800px; border-top-color: var(--neon-red);">
+        <h3 style="color: var(--neon-red); font-family: 'Orbitron', sans-serif;">// EVENTOS_ATIVOS</h3>
+        <table style="width: 100%; color: #ccc; margin-top: 20px; border-collapse: collapse; font-family: 'Space Mono', monospace; font-size: 0.85rem;">
+            {% for ev in eventos %}
+            <tr style="border-bottom: 1px solid #222;">
+                <td style="padding: 12px;">{{ ev[2].strftime('%d/%m/%Y') }}</td>
+                <td style="padding: 12px; color: #fff;">{{ ev[1] }}</td>
+                <td style="padding: 12px; text-align: right;">
+                    <a href="/admin/agenda/deletar/{{ ev[0] }}" onclick="return confirm('Deletar este evento?')" style="color: var(--neon-red); text-decoration: none;">[DELETAR]</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Lógica para esconder/mostrar as opções de Solo, Conjunto e Grupo
+    function toggleSubcategoria(valor) {
+        document.getElementById('campo-subcategoria').style.display = (valor === 'PARTICIPACAO') ? 'block' : 'none';
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Painel do Torneio | Next Move{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 40px auto; padding: 20px;">
+    <h1 style="text-align: center; color: #fff; font-family: 'Orbitron', sans-serif;">CONTROLE DE <span>BATALHA</span></h1>
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px; margin-top: 40px;">
+        
+        <div>
+            <div class="cyber-card" style="border-top-color: var(--neon-green);">
+                <h3 style="color: var(--neon-green);">// ADD_COMPETIDOR</h3>
+                <form method="POST" style="margin-top: 15px;">
+                    <input type="text" name="nome" placeholder="NOME DO DANÇARINO" required style="width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 10px; margin-bottom: 10px;">
+                    <button type="submit" class="btn btn-green" style="width: 100%;">CADASTRAR</button>
+                </form>
+            </div>
+
+            <div class="cyber-card" style="margin-top: 20px;">
+                <h3 style="color: var(--text-muted);">// INSCRITOS ({{ competidores|length }})</h3>
+                <ul style="list-style: none; padding: 0; margin-top: 15px;">
+                    {% for c in competidores %}
+                    <li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; color: #eee; font-family: 'Space Mono', monospace;">
+                        {{ c[1] }}
+                        <a href="/deletar_competidor/{{ c[0] }}" style="color: var(--neon-red); text-decoration: none; font-size: 0.7rem;">[REMOVER]</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+                <form action="/gerar_bracket_8" method="POST" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-green" style="width: 100%; background: transparent; border-color: var(--neon-gold); color: var(--neon-gold);">GERAR CHAVE TOP 8</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="cyber-card" style="border-top-color: var(--neon-red);">
+            <h3 style="color: var(--neon-red);">// GERENCIAMENTO_DE_CHAVES</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px;">Defina os vencedores para avançar no torneio.</p>
+            
+            {% for b in batalhas %}
+                {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

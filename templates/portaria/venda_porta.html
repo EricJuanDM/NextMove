@@ -1,52 +1,53 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lançar Venda Antecipada | Next Move</title>
-    <style>
-        body { background-color: #050505; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
-        .container { max-width: 400px; margin: 0 auto; background: #111; padding: 30px; border-radius: 10px; border: 1px solid #333; }
-        h2 { color: #00ff41; text-transform: uppercase; margin-top: 0; }
-        input, select { width: 90%; padding: 12px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; font-size: 1rem; }
-        button { background-color: #00ff41; color: #000; border: none; padding: 15px; font-size: 1.1rem; font-weight: bold; border-radius: 5px; cursor: pointer; text-transform: uppercase; width: 100%; transition: 0.3s; }
-        button:hover { background-color: #00cc33; }
-        .msg-sucesso { background: rgba(0, 255, 65, 0.2); color: #00ff41; padding: 15px; border-radius: 5px; border: 1px solid #00ff41; margin-bottom: 20px; font-weight: bold; }
-        .btn-voltar { display: block; margin-top: 20px; color: #888; text-decoration: none; }
-    </style>
-</head>
-<body>
+{% extends 'portaria/base_portaria.html' %}
 
-    <div class="container">
-        <h2>📥 Lançar Venda Antecipada</h2>
-        <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 25px;">Registre quem está comprando agora. Se o e-mail não tiver conta, criaremos uma com a senha <strong>nextmove2026</strong>.</p>
+{% block title %}Venda na Porta | Next Move{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="flex-direction: column; padding: 40px 20px;">
+    <div class="auth-box" style="border-top-color: var(--neon-green);">
+        
+        <div class="auth-header">
+            <span class="system-status" style="color: var(--neon-green);">// SYS_VENDA_DIRETA</span>
+            <h2>VENDA NA PORTA</h2>
+        </div>
 
         {% if mensagem_sucesso %}
-            <div class="msg-sucesso">{{ mensagem_sucesso }}</div>
+        <div style="background: rgba(0, 255, 65, 0.1); border-left: 3px solid var(--neon-green); padding: 10px; margin-bottom: 20px; color: var(--neon-green); font-family: 'Space Mono', monospace; font-size: 0.8rem;">
+            > {{ mensagem_sucesso }}
+        </div>
         {% endif %}
-        
+
         {% if erro %}
-            <div style="color: #ffaa00; margin-bottom: 15px;">⚠️ {{ erro }}</div>
+        <div style="background: rgba(255, 0, 60, 0.1); border-left: 3px solid var(--neon-red); padding: 10px; margin-bottom: 20px; color: var(--neon-red); font-family: 'Space Mono', monospace; font-size: 0.8rem;">
+            > ERRO: {{ erro }}
+        </div>
         {% endif %}
 
-        <form action="{{ url_for('portaria.venda_antecipada') }}" method="POST">
-            <input type="text" name="nome_completo" placeholder="Nome Completo do Comprador" required>
-            <input type="email" name="email" placeholder="E-mail Real do Comprador" required>
-            
-            <select name="tipo_ingresso" required>
-                <option value="" disabled selected>Selecione o Ingresso Comprado...</option>
-                <option value="aula_1">Workshop - Aula 1</option>
-                <option value="aula_2">Workshop - Aula 2</option>
-                <option value="pacote_aulas">Pacote Completo (Aulas)</option>
-                <option value="espectador">Entrada Geral (Evento)</option>
-                <option value="competidor">Competidor (Batalhas)</option>
+        <form action="/venda_porta" method="POST">
+            <label class="tech-label">NOME_COMPLETO</label>
+            <input type="text" name="nome_completo" placeholder="Nome de quem está a comprar..." required>
+
+            <input type="hidden" name="email" value="porta@nextmove.local">
+
+            <label class="tech-label">TIPO_DE_ACESSO</label>
+            <select name="tipo_ingresso" style="width: 100%; background: #000; color: var(--neon-green); border: 1px solid var(--border-dark); padding: 15px; font-family: 'Space Mono', monospace; margin-bottom: 20px; outline: none;">
+                <option value="espectador">ENTRADA GERAL (R$ 07,00)</option>
+                <option value="batalhas">INSCRIÇÃO BATALHA (R$ 15,00)</option>
+                <option value="aula_1">WORKSHOP RAILA (R$ 30,00)</option>
+                <option value="aula_2">WORKSHOP SOL (R$ 30,00)</option>
+                <option value="pacote_aulas">COMBO 2 AULAS (R$ 55,00)</option>
             </select>
-            
-            <button type="submit">Lançar Ingresso</button>
+
+            <button type="submit" class="btn btn-green btn-auth">CONFIRMAR PAGAMENTO & CHECK-IN</button>
         </form>
-
-        <a href="{{ url_for('portaria.painel_portaria') }}" class="btn-voltar">← Voltar para a Portaria</a>
+        
+        <div style="margin-top: 25px; text-align: center;">
+            <a href="/portaria" style="color: var(--text-muted); font-family: 'Space Mono', monospace; font-size: 0.85rem; text-decoration: none;">> VOLTAR AO PAINEL</a>
+        </div>
     </div>
-
-</body>
-</html>
+</div>
+{% endblock %}

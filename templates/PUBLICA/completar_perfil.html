@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Completar Perfil | Next Move{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-box">
+        <div class="auth-header">
+            <span class="system-status">// IDENTITY_UPDATE_REQUIRED</span>
+            <h2>QUASE LÁ</h2>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; font-family: 'Space Mono', monospace;">
+            Identificamos que seu perfil ainda não possui um nome vinculado. Como devemos te chamar no sistema?
+        </p>
+
+        <form method="POST">
+            <label class="tech-label">NOME_PARA_EXIBIÇÃO</label>
+            <input type="text" name="nome_completo" placeholder="Ex: Eric Juan" required>
+            <button type="submit" class="btn btn-green btn-auth">SALVAR E CONTINUAR</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

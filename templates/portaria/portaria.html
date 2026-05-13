@@ -1,95 +1,69 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel da Portaria | Next Move</title>
+{% extends 'portaria/base_portaria.html' %}
+
+{% block title %}Painel da Portaria | Next Move{% endblock %}
+
+{% block extra_css %}
+<style>
+    .portaria-container { max-width: 1100px; margin: 40px auto; padding: 20px; }
+    .grid-portaria { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
+    .card-portaria { 
+        background: var(--bg-panel); 
+        border: 1px solid var(--border-dark); 
+        border-top: 3px solid #00a8ff; 
+        padding: 25px; 
+        text-align: center; 
+        text-decoration: none; 
+        transition: 0.3s; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+    }
+    .card-portaria:hover { box-shadow: 0 5px 20px rgba(0, 168, 255, 0.2); transform: translateY(-5px); }
+    .card-portaria h3 { color: #fff; margin-bottom: 8px; font-size: 1.1rem; font-family: 'Orbitron', sans-serif; }
+    .card-portaria p { color: var(--text-muted); font-size: 0.8rem; font-family: 'Space Mono', monospace; }
     
-    <!-- CSS Global -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
-    <style>
-        .portaria-container { max-width: 900px; margin: 50px auto; padding: 20px; }
-        
-        .grid-portaria { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-            gap: 20px; 
-            margin-top: 40px; 
-        }
-        
-        .card-portaria {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-dark);
-            border-top: 3px solid #00a8ff; /* Azul Ciano de sistema */
-            padding: 30px;
-            text-align: center;
-            text-decoration: none;
-            transition: 0.3s;
-            display: flex;
-            flex-'direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 160px;
-        }
-        
-        .card-portaria:hover { 
-            box-shadow: 0 5px 20px rgba(0, 168, 255, 0.2); 
-            transform: translateY(-5px); 
-        }
-        
-        .card-portaria h3 { 
-            color: #fff; 
-            margin-bottom: 10px; 
-            font-size: 1.2rem; 
-        }
-        
-        .card-portaria p { 
-            color: var(--text-muted); 
-            font-size: 0.85rem; 
-            font-family: 'Space Mono', monospace; 
-        }
-    </style>
-</head>
-<body>
+    .section-label { color: var(--neon-gold); font-family: 'Space Mono', monospace; font-size: 0.8rem; margin-top: 30px; display: block; border-bottom: 1px solid #222; padding-bottom: 5px; }
+</style>
+{% endblock %}
 
-    <!-- NAVBAR ESPECÍFICA PARA A PORTARIA -->
-    <nav class="cyber-nav">
-        <a href="/" class="logo">NEXT<span>MOVE</span></a>
-        
-        <div class="nav-links">
-            <span style="color: var(--neon-gold); font-family: 'Space Mono', monospace;">// SYS_PORTARIA_ONLINE</span>
-            <!-- Botão de Sair em vermelho pra ficar com cara de painel de controle -->
-            <a href="/logout" class="btn btn-red" style="margin-left: 20px;">ENCERRAR SESSÃO</a>
-        </div>
-    </nav>
-
-    <div class="portaria-container">
-        <div style="text-align: center;">
-            <h1>CONTROLE DE ACESSO</h1>
-            <span style="color: #00a8ff; font-family: 'Space Mono', monospace;">// SELECIONE O PROTOCOLO DESEJADO</span>
-        </div>
-
-        <div class="grid-portaria">
-            <!-- CHECK-IN -->
-            <a href="/portaria/checkin" class="card-portaria">
-                <h3>> CHECK-IN INGRESSOS_</h3>
-                <p>Validar QR Code ou aprovar entradas antecipadas</p>
-            </a>
-            
-            <!-- VENDA NA PORTA (Destaque em Verde) -->
-            <a href="/portaria/venda_porta" class="card-portaria" style="border-top-color: var(--neon-green);">
-                <h3 style="color: var(--neon-green);">> VENDA NA PORTA_</h3>
-                <p>Registrar nova venda de ingresso na bilheteria</p>
-            </a>
-
-            <!-- LISTA GERAL -->
-            <a href="/portaria/venda_antecipada" class="card-portaria" style="border-top-color: var(--neon-gold);">
-                <h3 style="color: var(--neon-gold);">> LISTA GERAL_</h3>
-                <p>Consultar todos os ingressos emitidos e nomes</p>
-            </a>
-        </div>
+{% block content %}
+<div class="portaria-container">
+    <div style="text-align: center;">
+        <h1 style="color: #fff; font-family: 'Orbitron', sans-serif;">CONTROLE DE ACESSO</h1>
+        <span style="color: #00a8ff; font-family: 'Space Mono', monospace;">// SELECIONE O PROTOCOLO DE CHECK-IN</span>
     </div>
 
-</body>
-</html>
+    <span class="section-label">> LISTAS DE PRESENÇA</span>
+    <div class="grid-portaria">
+        <a href="/checkin/evento_geral" class="card-portaria">
+            <h3>GERAL (ESPECTADORES)</h3>
+            <p>Entrada principal do evento</p>
+        </a>
+        <a href="/checkin/aula_1" class="card-portaria" style="border-top-color: var(--neon-green);">
+            <h3>WORKSHOP: RAILA COSTA</h3>
+            <p>Lista de presença - Aula 10h</p>
+        </a>
+        <a href="/checkin/aula_2" class="card-portaria" style="border-top-color: var(--neon-green);">
+            <h3>WORKSHOP: SOL DE JESUS</h3>
+            <p>Lista de presença - Aula 11h30</p>
+        </a>
+        <a href="/checkin/batalhas" class="card-portaria" style="border-top-color: var(--neon-red);">
+            <h3>COMPETIDORES (BATALHA)</h3>
+            <p>Check-in de inscritos na batalha</p>
+        </a>
+    </div>
+
+    <span class="section-label">> OPERAÇÕES FINANCEIRAS</span>
+    <div class="grid-portaria">
+        <a href="/venda_porta" class="card-portaria" style="border-top-color: var(--neon-green);">
+            <h3 style="color: var(--neon-green);">VENDA NA PORTA</h3>
+            <p>Registrar nova venda e check-in imediato</p>
+        </a>
+        <a href="/venda_antecipada" class="card-portaria" style="border-top-color: var(--neon-gold);">
+            <h3 style="color: var(--neon-gold);">LANÇAR PIX</h3>
+            <p>Adicionar pagamento feito por fora</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

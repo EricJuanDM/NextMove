@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Cronograma | Next Move{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline-container { max-width: 800px; margin: 50px auto; padding: 20px; }
+    .timeline-item { background: var(--bg-panel); border: 1px solid var(--border-dark); border-left: 3px solid var(--neon-green); padding: 20px; margin-bottom: 20px; display: flex; gap: 20px; align-items: center; transition: 0.3s; }
+    .timeline-item:hover { box-shadow: 0 5px 15px var(--neon-green-dim); transform: translateX(10px); }
+    .time-box { font-family: 'Orbitron', sans-serif; color: var(--neon-green); font-size: 1.5rem; font-weight: bold; min-width: 90px; }
+    .event-desc { font-family: 'Space Mono', monospace; color: var(--text-main); font-size: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="timeline-container">
+    <h1 style="text-align: center; color: #fff; margin-bottom: 10px; font-family: 'Orbitron', sans-serif;">CRONOGRAMA DO EVENTO</h1>
+    <p style="text-align: center; color: var(--text-muted); font-family: 'Space Mono', monospace; margin-bottom: 40px;">// Programe-se para não perder nada. Horários sujeitos a alterações.</p>
+
+    <div class="timeline-item">
+        <div class="time-box">13:00</div>
+        <div class="event-desc">Abertura dos Portões e Credenciamento</div>
+    </div>
+    <div class="timeline-item">
+        <div class="time-box">14:00</div>
+        <div class="event-desc">Início das Batalhas (Top 8 - Double Elimination)</div>
+    </div>
+    <div class="timeline-item">
+        <div class="time-box">16:30</div>
+        <div class="event-desc">Apresentações Convidadas (Showcases)</div>
+    </div>
+    <div class="timeline-item" style="border-left-color: var(--neon-gold);">
+        <div class="time-box" style="color: var(--neon-gold);">18:00</div>
+        <div class="event-desc">Grande Final e Premiação</div>
+    </div>
+</div>
+{% endblock %}

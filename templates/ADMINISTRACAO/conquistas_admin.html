@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Hall da Fama | Next Move{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="flex-direction: column; gap: 30px; padding: 50px 20px;">
+    
+    <div class="auth-box" style="border-top-color: var(--neon-gold);">
+        <div class="auth-header">
+            <span class="system-status" style="color: var(--neon-gold);">// HALL_OF_FAME_UPDATE</span>
+            <h2>REGISTRAR CONQUISTA</h2>
+        </div>
+        
+        <form method="POST">
+            <label class="tech-label">NOME_DO_EVENTO_OU_TITULO</label>
+            <input type="text" name="titulo" placeholder="Ex: Festival de Dança de Joinville" required>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label class="tech-label">COLOCAÇÃO</label>
+                    <input type="text" name="colocacao" placeholder="Ex: 1º Lugar">
+                </div>
+                <div>
+                    <label class="tech-label">ANO</label>
+                    <input type="number" name="ano" value="2026">
+                </div>
+            </div>
+
+            <label class="tech-label">CATEGORIA_DA_DANÇA</label>
+            <input type="text" name="categoria" placeholder="Ex: Freestyle / Solo Hip Hop">
+
+            <label class="tech-label">RELATÓRIO_DA_VITÓRIA (DESCRIÇÃO)</label>
+            <textarea name="descricao" style="width: 100%; background: #000; color: #ccc; border: 1px solid var(--border-dark); padding: 10px; font-family: 'Space Mono'; min-height: 80px; margin-bottom: 20px;"></textarea>
+
+            <button type="submit" class="btn btn-green btn-auth" style="border-color: var(--neon-gold); color: var(--neon-gold);">PUBLICAR NO HALL DA FAMA</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

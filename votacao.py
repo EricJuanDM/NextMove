@@ -57,7 +57,7 @@ def admin():
     batalhas = cursor.fetchall()
     conn.close()
     
-    return render_template('admin.html', competidores=competidores, batalhas=batalhas)
+    return render_template('ADMINISTRACAO/admin.html', competidores=competidores, batalhas=batalhas)
 
 @votacao_bp.route('/gerar_bracket_8', methods=['POST'])
 def gerar_bracket_8():
@@ -92,16 +92,13 @@ def gerar_bracket_8():
             outros_competidores.append(comp_id)
 
     # 3. O SORTEIO INTELIGENTE
-    # Trava de segurança: Se você digitou o nome de alguém diferente e não achou os 4 exatos, ele sorteia 100% aleatório para não travar o evento
     if len(cabecas_de_chave) != 4 or len(outros_competidores) != 4:
         ativos = [c[0] for c in todos_competidores]
         random.shuffle(ativos)
     else:
-        # Embaralha os VIPs entre si, e os Outros entre si
         random.shuffle(cabecas_de_chave)
         random.shuffle(outros_competidores)
         
-        # Monta a lista final colocando: [VIP, Outro, VIP, Outro, VIP, Outro, VIP, Outro]
         ativos = [
             cabecas_de_chave[0], outros_competidores[0], # Luta W1
             cabecas_de_chave[1], outros_competidores[1], # Luta W2
@@ -109,7 +106,6 @@ def gerar_bracket_8():
             cabecas_de_chave[3], outros_competidores[3]  # Luta W4
         ]
 
-    # Cria todas as 14 batalhas da chave
     pools_iniciais = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'GF1']
     
     for pool in pools_iniciais:
@@ -137,19 +133,16 @@ def registrar_vitoria(batalha_id, vencedor_id):
 
     regras = REGRAS_AVANCO.get(pool)
     if regras:
-        # Lógica do Vencedor
         if regras['win'] not in ['FIM', 'RESET']:
             prox_pool_win, vaga_win = regras['win']
             coluna_win = 'competidor1_id' if vaga_win == 'c1' else 'competidor2_id'
             cursor.execute(f"UPDATE batalhas_suico SET {coluna_win} = %s WHERE pool = %s", (vencedor_id, prox_pool_win))
         
-        # Lógica do Perdedor
         if regras['lose'] not in [None, 'CHECK_RESET', 'RESET']:
             prox_pool_lose, vaga_lose = regras['lose']
             coluna_lose = 'competidor1_id' if vaga_lose == 'c1' else 'competidor2_id'
             cursor.execute(f"UPDATE batalhas_suico SET {coluna_lose} = %s WHERE pool = %s", (perdedor_id, prox_pool_lose))
 
-        # A Regra Mágica do Reset na Grande Final!
         if pool == 'GF1':
             if vencedor_id == c2:
                 cursor.execute('INSERT INTO batalhas_suico (pool, competidor1_id, competidor2_id, round) VALUES (%s, %s, %s, 2)', ('GF2', c1, c2))
@@ -200,8 +193,7 @@ def pagina_batalhas():
     meus_palpites = {voto[0]: voto[1] for voto in cursor.fetchall()}
     conn.close()
     
-    # Aqui renderizamos o HTML que fizemos na mensagem anterior!
-    return render_template('votacao.html', batalhas=batalhas, meus_palpites=meus_palpites)
+    return render_template('EVENTO/votacao.html', batalhas=batalhas, meus_palpites=meus_palpites)
 
 @votacao_bp.route('/enviar_palpite/<int:batalha_id>/<int:competidor_id>', methods=['POST'])
 def enviar_palpite(batalha_id, competidor_id):
@@ -250,7 +242,7 @@ def ranking_bolao():
     ranking = cursor.fetchall()
     conn.close()
     
-    return render_template('ranking.html', ranking=ranking)
+    return render_template('EVENTO/ranking.html', ranking=ranking)
 
 @votacao_bp.route('/desfazer/<int:batalha_id>', methods=['POST'])
 def desfazer_vitoria(batalha_id):
@@ -262,23 +254,19 @@ def desfazer_vitoria(batalha_id):
 
     regras = REGRAS_AVANCO.get(pool)
     if regras:
-        # 1. Tira o cara errado da próxima chave de Vencedores
         if regras['win'] not in ['FIM', 'RESET']:
             prox_pool_win, vaga_win = regras['win']
             coluna_win = 'competidor1_id' if vaga_win == 'c1' else 'competidor2_id'
             cursor.execute(f"UPDATE batalhas_suico SET {coluna_win} = NULL WHERE pool = %s", (prox_pool_win,))
 
-        # 2. Tira o cara errado da chave de Repescagem
         if regras['lose'] not in [None, 'CHECK_RESET', 'RESET']:
             prox_pool_lose, vaga_lose = regras['lose']
             coluna_lose = 'competidor1_id' if vaga_lose == 'c1' else 'competidor2_id'
             cursor.execute(f"UPDATE batalhas_suico SET {coluna_lose} = NULL WHERE pool = %s", (prox_pool_lose,))
 
-        # 3. Se foi na Grande Final, apaga a luta do Reset (GF2) se ela tiver sido criada
         if pool == 'GF1':
             cursor.execute("DELETE FROM batalhas_suico WHERE pool = 'GF2'")
 
-    # 4. Restaura a batalha atual para "pendente" e tira o Vencedor
     cursor.execute("UPDATE batalhas_suico SET vencedor_id = NULL, status = 'pendente' WHERE id = %s", (batalha_id,))
 
     conn.commit()

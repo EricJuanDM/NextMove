@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portaria | Next Move{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <nav class="cyber-nav">
+        <a href="/portaria" class="logo">NEXT<span>MOVE</span></a>
+        
+        <div class="nav-links">
+            <span style="color: var(--neon-gold); font-family: 'Space Mono', monospace; margin-right: 20px;">// SYS_PORTARIA_ONLINE</span>
+            <a href="/" class="btn btn-red" style="padding: 5px 15px; font-size: 0.8rem;">ENCERRAR SESSÃO</a>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

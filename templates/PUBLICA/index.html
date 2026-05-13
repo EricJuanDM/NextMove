@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Next Move | O Palco é Seu{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="hero-section">
+        <h1 class="hero-title">O PALCO É SEU.<br>MOSTRE SUA <span>DANÇA</span>.</h1>
+        <p class="hero-subtitle">
+            Muito mais que um evento. Somos um movimento. Conheça nossa história, nossos títulos e prepare-se para as próximas batalhas.
+        </p>
+        <a href="/ingressos" class="btn btn-green btn-hero">GARANTIR INGRESSO</a>
+    </div>
+
+    <div class="info-section" id="grupo">
+        <h2 class="section-title">// OPERAÇÕES ATUAIS_</h2>
+
+        <div class="cyber-card" style="border-left-color: #00a8ff;">
+            <h3 style="color: #00a8ff;">> TREINAMENTO E ENSAIOS_</h3>
+            <p>Nossos ensaios táticos acontecem religiosamente aos sábados. Foco total em elevar o nível técnico, testar novas rotinas de freestyle e preparar o corpo e a mente para o palco.</p>
+        </div>
+
+        <div class="cyber-card" style="border-left-color: #00a8ff;">
+            <h3 style="color: #00a8ff;">> CRIAÇÃO DE CONTEÚDO_</h3>
+            <p>Documentando nossa jornada. Registramos a evolução do grupo, os bastidores dos treinos e a estética da nossa dança para compartilhar com o mundo.</p>
+        </div>
+    </div>
+
+    <div class="info-section" id="titulos">
+        <h2 class="section-title">// HALL DA FAMA_</h2>
+
+        <div class="cyber-card gold-card">
+            <h3>> CAMPEÃO: [Nome do Campeonato]_</h3>
+            <p>1º Lugar na categoria [Categoria]. Uma batalha histórica que marcou nosso nome na cena.</p>
+        </div>
+    </div>
+
+    <div class="info-section" id="evento">
+        <h2 class="section-title">// NEXT MOVE 2026_</h2>
+
+        <div class="cyber-card">
+            <h3>> AULAS_</h3>
+            <p>Aulas montadas pelo grupo e convidados especiais para abrir o evento com a energia lá no alto.</p>
+        </div>
+
+        <div class="cyber-card">
+            <h3>> BATALHAS (DOUBLE ELIMINATION)_</h3>
+            <p>29/03 às 14h: Batalha Open Style. Top 8 se enfrentando no palco principal com o público no controle da votação!</p>
+        </div>
+    </div>
+{% endblock %}

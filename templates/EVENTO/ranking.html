@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Ranking do Bolão | Next Move{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 50px auto; padding: 20px;">
+    <h1 style="text-align: center; color: #fff; font-family: 'Orbitron', sans-serif; margin-bottom: 10px;">RANKING DO <span>BOLÃO</span></h1>
+    <p style="text-align: center; color: var(--text-muted); font-family: 'Space Mono', monospace; margin-bottom: 40px;">// QUEM TEM A MELHOR LEITURA DA CENA?</p>
+
+    <div class="cyber-card" style="border-top-color: var(--neon-gold); padding: 0;">
+        <table style="width: 100%; border-collapse: collapse; color: #fff; font-family: 'Space Mono', monospace;">
+            <tr style="border-bottom: 2px solid var(--border-dark); color: var(--neon-gold); background: #111;">
+                <th style="padding: 15px; text-align: left;">POSIÇÃO</th>
+                <th style="padding: 15px; text-align: left;">ESPECTADOR</th>
+                <th style="padding: 15px; text-align: center;">ACERTOS</th>
+            </tr>
+            
+            {% if ranking %}
+                {% for r in ranking %}
+                <tr style="border-bottom: 1px solid #222; transition: 0.3s;" onmouseover="this.style.backgroundColor='#1a1a1a'" onmouseout="this.style.backgroundColor='transparent'">
+                    <td style="padding: 15px; color: var(--neon-green);">#{{ loop.index }}</td>
+                    <td style="padding: 15px;">{{ r[0] }}</td>
+                    <td style="padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem;">{{ r[1] }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="3" style="padding: 20px; text-align: center; color: var(--text-muted);">> Nenhuma batalha finalizada ainda. O ranking está vazio.</td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}
