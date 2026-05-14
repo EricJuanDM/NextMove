@@ -188,26 +188,48 @@ def meus_ingressos():
     finally:
         conn.close()
 
-# ROTA PÚBLICA: Onde todos veem a agenda
+# ==========================================
+# 1. ROTA DA AGENDA PÚBLICA (Com Coreografias)
+# ==========================================
 @app.route('/agenda')
 def pagina_agenda():
     conn = psycopg2.connect(URL_BANCO)
     cursor = conn.cursor()
     
-    # O SELECT * garante que as novas colunas (origem e subcategoria) também venham para o HTML!
-    cursor.execute("SELECT * FROM agenda WHERE data_evento >= CURRENT_DATE ORDER BY data_evento ASC")
-    eventos_db = cursor.fetchall()
-    
+    # Puxa os dados principais (O COALESCE evita que venha 'None' na tela)
+    cursor.execute('''
+        SELECT id, evento_nome, data_evento, COALESCE(tipo, 'EVENTO'), local, link_inscricao, COALESCE(origem_evento, 'PROPRIO') 
+        FROM agenda WHERE data_evento >= CURRENT_DATE ORDER BY data_evento ASC
+    ''')
+    eventos_raw = cursor.fetchall()
+
+    eventos_formatados = []
+    for ev in eventos_raw:
+        evento_dict = {
+            'id': ev[0], 'nome': ev[1], 'data': ev[2], 'tipo': ev[3],
+            'local': ev[4], 'link': ev[5], 'origem': ev[6], 'coreografias': []
+        }
+        
+        # Se for competição, puxa a lista de coreografias do banco
+        if evento_dict['origem'] == 'PARTICIPACAO':
+            cursor.execute("SELECT nome_coreografia, modalidade FROM agenda_coreografias WHERE agenda_id = %s", (ev[0],))
+            coreos = cursor.fetchall()
+            for c in coreos:
+                evento_dict['coreografias'].append({'nome': c[0], 'modalidade': c[1]})
+                
+        eventos_formatados.append(evento_dict)
+
     conn.close()
-    return render_template('PUBLICA/agenda.html', eventos=eventos_db)
+    return render_template('PUBLICA/agenda.html', eventos=eventos_formatados)
 
-# ROTA ADMIN: Formulário de Gerenciamento (Só Superadmin)
-@app.route('/admin/agenda', methods=['GET', 'POST'])
-def admin_agenda():
-    nivel = session.get('nivel_acesso')
-    if nivel != 'superadmin': 
-        return redirect('/')
 
+# ==========================================
+# 2. ROTA PARA EDITAR EVENTOS NO ADMIN
+# ==========================================
+@app.route('/admin/agenda/editar/<int:id>', methods=['GET', 'POST'])
+def editar_evento(id):
+    if session.get('nivel_acesso') != 'superadmin': return redirect('/')
+    
     conn = psycopg2.connect(URL_BANCO)
     cursor = conn.cursor()
 
@@ -215,21 +237,108 @@ def admin_agenda():
         nome = request.form.get('evento_nome')
         data = request.form.get('data_evento')
         tipo = request.form.get('tipo')
+        origem = request.form.get('origem_evento')
         local = request.form.get('local')
         link = request.form.get('link')
 
         cursor.execute('''
-            INSERT INTO agenda (evento_nome, data_evento, tipo, local, link_inscricao)
-            VALUES (%s, %s, %s, %s, %s)
-        ''', (nome, data, tipo, local, link))
+            UPDATE agenda
+            SET evento_nome=%s, data_evento=%s, tipo=%s, origem_evento=%s, local=%s, link_inscricao=%s
+            WHERE id=%s
+        ''', (nome, data, tipo, origem, local, link, id))
+
+        # Resetar as coreografias e salvar as novas
+        cursor.execute("DELETE FROM agenda_coreografias WHERE agenda_id = %s", (id,))
+        
+        if origem == 'PARTICIPACAO':
+            nomes_coreos = request.form.getlist('coreo_nome[]')
+            cats_coreos = request.form.getlist('coreo_cat[]')
+            for n, c in zip(nomes_coreos, cats_coreos):
+                if n.strip():
+                    cursor.execute("INSERT INTO agenda_coreografias (agenda_id, nome_coreografia, modalidade) VALUES (%s, %s, %s)", (id, n, c))
+
         conn.commit()
         return redirect('/admin/agenda')
+
+    # Para mostrar na tela os dados que já existem
+    cursor.execute("SELECT * FROM agenda WHERE id = %s", (id,))
+    evento = cursor.fetchone()
+    cursor.execute("SELECT nome_coreografia, modalidade FROM agenda_coreografias WHERE agenda_id = %s", (id,))
+    coreografias = cursor.fetchall()
+    
+    conn.close()
+    return render_template('ADMINISTRACAO/agenda_editar.html', evento=evento, coreografias=coreografias)
+
+# ROTA ADMIN: Formulário de Gerenciamento (Só Superadmin)
+@app.route('/admin/agenda', methods=['GET', 'POST'])
+def admin_agenda():
+    if session.get('nivel_acesso') != 'superadmin': return redirect('/')
+    
+    conn = psycopg2.connect(URL_BANCO)
+    cursor = conn.cursor()
+    
+    # Captura o ID de edição da URL (ex: /admin/agenda?edit_id=5)
+    edit_id = request.args.get('edit_id')
+    evento_editar = None
+    coreografias_editar = []
+
+    if request.method == 'POST':
+        action = request.form.get('action') # Vamos usar um campo oculto para saber se é ADD ou EDIT
+        
+        nome = request.form.get('evento_nome')
+        data = request.form.get('data_evento')
+        tipo = request.form.get('tipo')
+        origem = request.form.get('origem_evento')
+        local = request.form.get('local')
+        link = request.form.get('link')
+
+        if action == 'add':
+            cursor.execute('''
+                INSERT INTO agenda (evento_nome, data_evento, tipo, origem_evento, local, link_inscricao)
+                VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+            ''', (nome, data, tipo, origem, local, link))
+            novo_id = cursor.fetchone()[0]
+            
+            if origem == 'PARTICIPACAO':
+                nomes = request.form.getlist('coreo_nome[]')
+                cats = request.form.getlist('coreo_cat[]')
+                for n, c in zip(nomes, cats):
+                    if n.strip():
+                        cursor.execute("INSERT INTO agenda_coreografias (agenda_id, nome_coreografia, modalidade) VALUES (%s, %s, %s)", (novo_id, n, c))
+
+        elif action == 'edit':
+            id_atualizar = request.form.get('id_evento')
+            cursor.execute('''
+                UPDATE agenda SET evento_nome=%s, data_evento=%s, tipo=%s, origem_evento=%s, local=%s, link_inscricao=%s
+                WHERE id=%s
+            ''', (nome, data, tipo, origem, local, link, id_atualizar))
+            
+            cursor.execute("DELETE FROM agenda_coreografias WHERE agenda_id = %s", (id_atualizar,))
+            if origem == 'PARTICIPACAO':
+                nomes = request.form.getlist('coreo_nome[]')
+                cats = request.form.getlist('coreo_cat[]')
+                for n, c in zip(nomes, cats):
+                    if n.strip():
+                        cursor.execute("INSERT INTO agenda_coreografias (agenda_id, nome_coreografia, modalidade) VALUES (%s, %s, %s)", (id_atualizar, n, c))
+
+        conn.commit()
+        return redirect('/admin/agenda')
+
+    # Se estivermos no modo de edição, busca os dados para o formulário de baixo
+    if edit_id:
+        cursor.execute("SELECT * FROM agenda WHERE id = %s", (edit_id,))
+        evento_editar = cursor.fetchone()
+        cursor.execute("SELECT nome_coreografia, modalidade FROM agenda_coreografias WHERE agenda_id = %s", (edit_id,))
+        coreografias_editar = cursor.fetchall()
 
     cursor.execute("SELECT * FROM agenda ORDER BY data_evento DESC")
     todos_eventos = cursor.fetchall()
     conn.close()
     
-    return render_template('ADMINISTRACAO/agenda_admin.html', eventos=todos_eventos)
+    return render_template('ADMINISTRACAO/agenda_admin.html', 
+                            eventos=todos_eventos, 
+                            edit_mode=evento_editar, 
+                            coreos_edit=coreografias_editar)
 
 # ROTA PARA DELETAR EVENTO
 @app.route('/admin/agenda/deletar/<int:id>')
@@ -289,6 +398,8 @@ def deletar_conquista(id):
     conn.commit()
     conn.close()
     return redirect('/admin/conquistas')
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

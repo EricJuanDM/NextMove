@@ -1,236 +1,169 @@
 {% extends 'base.html' %}
-
 {% block title %}Agenda | Next Move{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* LAYOUT PRINCIPAL */
     .agenda-wrapper { max-width: 1200px; margin: 40px auto; padding: 20px; }
-    
-    /* FILTROS SUPERIORES */
     .filters-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 40px; }
-    .btn-filter {
-        background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted);
-        padding: 10px 25px; border-radius: 30px; font-family: 'Space Mono', monospace; font-size: 0.85rem;
-        cursor: pointer; transition: 0.3s;
-    }
+    .btn-filter { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 10px 25px; border-radius: 30px; font-family: 'Space Mono', monospace; font-size: 0.85rem; cursor: pointer; transition: 0.3s; }
     .btn-filter:hover { border-color: var(--neon-green); color: var(--neon-green); }
     .btn-filter.active { background: var(--neon-green); color: #000; border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green-dim); font-weight: bold; }
-
-    /* GRID AGENDA (Calendário Esquerda / Eventos Direita) */
     .agenda-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; align-items: start; }
-    
-    @media (max-width: 800px) {
-        .agenda-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 900px) { .agenda-grid { grid-template-columns: 1fr; } }
 
-    /* CALENDÁRIO VISUAL */
     .cyber-calendar { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 15px; padding: 25px; }
     .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; }
     .calendar-btn { background: transparent; border: none; color: var(--neon-green); font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
-    .calendar-btn:hover { color: #fff; text-shadow: 0 0 10px #fff; }
-    
     .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; color: var(--neon-green); font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-bottom: 10px; }
     .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-    .day-cell {
-        aspect-ratio: 1; display: flex; justify-content: center; align-items: center;
-        border: 1px solid transparent; border-radius: 8px; color: var(--text-muted);
-        font-family: 'Space Mono', monospace; font-size: 0.9rem; position: relative; cursor: pointer; transition: 0.3s;
-    }
+    .day-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; border: 1px solid transparent; border-radius: 8px; color: var(--text-muted); font-family: 'Space Mono', monospace; font-size: 0.9rem; position: relative; cursor: pointer; transition: 0.3s; }
     .day-cell:hover { border-color: #333; background: #111; color: #fff; }
-    .day-cell.has-event { color: #fff; font-weight: bold; }
-    .day-cell.has-event::after {
-        content: ''; position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
-        width: 5px; height: 5px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 5px var(--neon-green);
-    }
+    .day-cell.has-event::after { content: ''; position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 5px var(--neon-green); }
     .day-cell.selected { border-color: var(--neon-green); background: rgba(0, 255, 65, 0.1); color: var(--neon-green); }
 
-    /* LISTA DE EVENTOS (Lado Direito) */
     .events-list { display: flex; flex-direction: column; gap: 20px; }
-    .event-card {
-        background: linear-gradient(145deg, #0a0a0a, #111); border: 1px solid var(--border-dark); border-left: 4px solid var(--neon-green);
-        border-radius: 10px; padding: 25px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s;
-    }
-    .event-card.hidden { display: none; }
-    .event-card:hover { transform: translateX(10px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-    
+    .event-card { background: linear-gradient(145deg, #0a0a0a, #111); border: 1px solid var(--border-dark); border-left: 4px solid var(--neon-green); border-radius: 10px; padding: 25px; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
+    .event-card.hidden { display: none !important; }
     .event-top { display: flex; gap: 15px; align-items: center; border-bottom: 1px dashed #222; padding-bottom: 15px; }
     .event-date-block { background: #000; border: 1px solid #222; border-radius: 8px; padding: 10px 15px; text-align: center; min-width: 80px; }
     .event-date-block .day { display: block; font-size: 1.8rem; font-weight: bold; color: #fff; font-family: 'Orbitron', sans-serif; line-height: 1; }
-    .event-date-block .month { display: block; font-size: 0.8rem; color: var(--neon-green); font-family: 'Space Mono', monospace; text-transform: uppercase; margin-top: 5px; }
-    
+    .event-date-block .month { display: block; font-size: 0.8rem; color: var(--neon-green); font-family: 'Space Mono', monospace; text-transform: uppercase; }
     .event-tags { display: flex; gap: 10px; flex-wrap: wrap; }
-    .tag { font-family: 'Space Mono', monospace; font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; border: 1px solid; }
+    .tag { font-family: 'Space Mono', monospace; font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; border: 1px solid; text-transform: uppercase; }
     .tag-host { border-color: var(--neon-green); color: var(--neon-green); background: rgba(0,255,65,0.1); }
     .tag-guest { border-color: var(--neon-gold); color: var(--neon-gold); background: rgba(255,215,0,0.1); }
-    .tag-type { border-color: #00a8ff; color: #00a8ff; background: rgba(0,168,255,0.1); }
 
-    .event-info h3 { color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin: 0 0 10px 0; }
-    .event-info p { color: var(--text-muted); font-family: 'Space Mono', monospace; font-size: 0.9rem; margin: 5px 0; display: flex; align-items: center; gap: 10px; }
-    
-    .btn-inscrever { align-self: flex-start; margin-top: 10px; border-radius: 20px; padding: 8px 25px; }
+    .coreo-list { margin-top: 15px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; border-left: 2px solid var(--neon-gold); }
+    .coreo-item { color: #eee; font-size: 0.85rem; font-family: 'Space Mono', monospace; border-bottom: 1px dashed #222; padding: 8px 0; display: flex; justify-content: space-between;}
+    .coreo-item:last-child { border: none; padding-bottom: 0;}
+    .cat-badge { color: var(--neon-gold); font-size: 0.7rem; padding: 2px 6px; border: 1px solid #333; border-radius: 4px;}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="agenda-wrapper">
-    <h1 style="text-align: center; color: #fff; font-family: 'Orbitron', sans-serif; margin-bottom: 30px;">PRÓXIMOS <span>PASSOS.</span></h1>
+    <h1 style="text-align: center; color: #fff; font-family: 'Orbitron', sans-serif; margin-bottom: 30px;">PRÓXIMAS <span>MISSÕES.</span></h1>
 
     <div class="filters-container">
         <button class="btn-filter active" onclick="filtrarEventos('TODOS', this)">TODOS</button>
         <button class="btn-filter" onclick="filtrarEventos('PROPRIO', this)">NEXT MOVE (HOST)</button>
-        <button class="btn-filter" onclick="filtrarEventos('PARTICIPACAO', this)">PARTICIPAÇÕES EXTERNAS</button>
+        <button class="btn-filter" onclick="filtrarEventos('PARTICIPACAO', this)">COMPETIÇÕES</button>
         <button class="btn-filter" onclick="filtrarEventos('BATALHA', this)">BATALHAS</button>
         <button class="btn-filter" onclick="filtrarEventos('WORKSHOP', this)">WORKSHOPS</button>
     </div>
 
     <div class="agenda-grid">
-        
         <div class="cyber-calendar">
             <div class="calendar-header">
                 <button class="calendar-btn" onclick="mudarMes(-1)">&#10094;</button>
                 <span id="mesAnoDisplay">MÊS ANO</span>
                 <button class="calendar-btn" onclick="mudarMes(1)">&#10095;</button>
             </div>
-            <div class="weekdays">
-                <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
-            </div>
-            <div class="days-grid" id="calendarDays">
-                </div>
+            <div class="weekdays"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
+            <div class="days-grid" id="calendarDays"></div>
         </div>
 
         <div class="events-list" id="eventsList">
-            <h2 style="color: #fff; font-family: 'Orbitron', sans-serif; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;">PRÓXIMOS EVENTOS</h2>
-            
             {% if eventos %}
                 {% for e in eventos %}
-                <div class="event-card event-item" data-tipo="{{ e[3] }}" data-origem="{{ e[6] }}" data-dataiso="{{ e[2].strftime('%Y-%m-%d') }}">
+                <div class="event-card event-item" data-tipo="{{ e.tipo }}" data-origem="{{ e.origem }}" data-dataiso="{{ e.data.strftime('%Y-%m-%d') }}">
                     <div class="event-top">
                         <div class="event-date-block">
-                            <span class="day">{{ e[2].day }}</span>
-                            <span class="month">{{ e[2].strftime('%b') }}</span>
+                            <span class="day">{{ e.data.day }}</span>
+                            <span class="month">{{ e.data.strftime('%b') }}</span>
                         </div>
                         <div class="event-tags">
-                            {% if e[6] == 'PROPRIO' %}
+                            {% if e.origem == 'PROPRIO' %}
                                 <span class="tag tag-host">HOST: NEXT MOVE</span>
                             {% else %}
                                 <span class="tag tag-guest">PARTICIPAÇÃO EXTERNA</span>
-                                {% if e[7] %} <span class="tag tag-guest">> {{ e[7] }}</span> {% endif %}
                             {% endif %}
-                            <span class="tag tag-type">{{ e[3] }}</span>
+                            <span class="tag" style="border-color: #00a8ff; color: #00a8ff;">{{ e.tipo }}</span>
                         </div>
                     </div>
+                    
                     <div class="event-info">
-                        <h3>{{ e[1] }}</h3>
-                        <p><strong style="color: #fff;">Local:</strong> {{ e[4] }}</p>
-                        {% if e[5] %}
-                            <a href="{{ e[5] }}" target="_blank" class="btn btn-green btn-inscrever">SAIBA MAIS / INSCREVA-SE</a>
+                        <h3 style="color: #fff; font-family: 'Orbitron', sans-serif;">{{ e.nome }}</h3>
+                        <p style="color: var(--text-muted); font-family: 'Space Mono', monospace; font-size: 0.9rem;"><strong style="color: #fff;">Local:</strong> {{ e.local }}</p>
+
+                        {% if e.origem == 'PARTICIPACAO' %}
+                            <div class="coreo-list">
+                                <span class="tech-label" style="color: var(--neon-gold); font-size: 0.7rem; display: block; margin-bottom: 10px;">// COREOGRAFIAS_EM_BATALHA:</span>
+                                {% if e.coreografias %}
+                                    {% for c in e.coreografias %}
+                                        <div class="coreo-item">
+                                            <span>{{ c.nome }}</span>
+                                            <span class="cat-badge">{{ c.modalidade }}</span>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="coreo-item" style="color: var(--text-muted);">Aguardando definição...</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if e.link %}
+                            <a href="{{ e.link }}" target="_blank" class="btn btn-green" style="margin-top: 15px; width: 100%; text-align: center;">MAIS INFORMAÇÕES</a>
                         {% endif %}
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <p style="color: var(--text-muted); font-family: 'Space Mono', monospace;">> Nenhum evento programado no momento.</p>
+                <p style="color: var(--text-muted); font-family: 'Space Mono', monospace; text-align: center;">> SISTEMA LIMPO: NENHUM EVENTO AGENDADO.</p>
             {% endif %}
         </div>
-
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // === SISTEMA DE FILTROS ===
-    function filtrarEventos(filtro, botaoClicado) {
-        // Atualiza a cor dos botões
-        let botoes = document.querySelectorAll('.btn-filter');
-        botoes.forEach(b => b.classList.remove('active'));
-        botaoClicado.classList.add('active');
+    let dataAtual = new Date();
+    const diasComEvento = [{% for e in eventos %}"{{ e.data.strftime('%Y-%m-%d') }}"{% if not loop.last %},{% endif %}{% endfor %}];
 
-        // Filtra os cards
-        let cards = document.querySelectorAll('.event-item');
-        cards.forEach(card => {
-            let tipo = card.getAttribute('data-tipo');
-            let origem = card.getAttribute('data-origem');
+    // O Filtro funciona olhando os data-attributes das divs
+    function filtrarEventos(filtro, btn) {
+        document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.event-item').forEach(card => {
+            const tipo = card.getAttribute('data-tipo');
+            const origem = card.getAttribute('data-origem');
+            const match = (filtro === 'TODOS') || (tipo === filtro) || (origem === filtro);
             
-            if (filtro === 'TODOS' || tipo === filtro || origem === filtro) {
+            if(match) {
+                card.style.display = 'flex';
                 card.classList.remove('hidden');
             } else {
+                card.style.display = 'none';
                 card.classList.add('hidden');
             }
         });
     }
 
-    // === MOTOR DO CALENDÁRIO VISUAL ===
-    let dataAtual = new Date(); // Mês que estamos visualizando
-    
-    // Puxando os dias de eventos do Flask para uma array no JS
-    const diasComEvento = [
-        {% for e in eventos %}
-            "{{ e[2].strftime('%Y-%m-%d') }}"{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
-
-    const nomesMeses = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
-
     function renderizarCalendario() {
-        let mes = dataAtual.getMonth();
-        let ano = dataAtual.getFullYear();
-        
-        document.getElementById('mesAnoDisplay').innerText = `${nomesMeses[mes]} DE ${ano}`;
-        
-        let primeiroDia = new Date(ano, mes, 1).getDay(); // Dia da semana que o mês começa
-        let totalDias = new Date(ano, mes + 1, 0).getDate(); // Quantos dias tem o mês
-        
-        let daysGrid = document.getElementById('calendarDays');
-        daysGrid.innerHTML = ''; // Limpa o calendário
-
-        // Preenche espaços vazios antes do dia 1
-        for (let i = 0; i < primeiroDia; i++) {
-            let emptyCell = document.createElement('div');
-            daysGrid.appendChild(emptyCell);
-        }
-
-        // Preenche os dias do mês
-        for (let dia = 1; dia <= totalDias; dia++) {
-            let cell = document.createElement('div');
-            cell.classList.add('day-cell');
-            cell.innerText = dia;
-            
-            // Cria a string da data atual (ex: 2026-04-18) para comparar com os eventos
-            let mesFormatado = String(mes + 1).padStart(2, '0');
-            let diaFormatado = String(dia).padStart(2, '0');
-            let dataFormatada = `${ano}-${mesFormatado}-${diaFormatado}`;
-            
-            // Se tiver evento nesse dia, coloca a bolinha verde
-            if (diasComEvento.includes(dataFormatada)) {
-                cell.classList.add('has-event');
-            }
-            
-            // Ação ao clicar no dia (Opcional: faz scroll até o evento)
-            cell.onclick = function() {
+        const mes = dataAtual.getMonth(), ano = dataAtual.getFullYear();
+        document.getElementById('mesAnoDisplay').innerText = `${new Intl.DateTimeFormat('pt-BR', {month: 'long'}).format(dataAtual).toUpperCase()} ${ano}`;
+        const primeiroDia = new Date(ano, mes, 1).getDay();
+        const totalDias = new Date(ano, mes + 1, 0).getDate();
+        const grid = document.getElementById('calendarDays');
+        grid.innerHTML = '';
+        for (let i = 0; i < primeiroDia; i++) grid.appendChild(document.createElement('div'));
+        for (let d = 1; d <= totalDias; d++) {
+            const cell = document.createElement('div');
+            cell.className = 'day-cell';
+            cell.innerText = d;
+            const dataISO = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            if (diasComEvento.includes(dataISO)) cell.classList.add('has-event');
+            cell.onclick = () => {
                 document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected'));
                 cell.classList.add('selected');
-                
-                // Procura o evento correspondente na lista e foca nele
-                let eventoCard = document.querySelector(`.event-item[data-dataiso="${dataFormatada}"]`);
-                if (eventoCard) {
-                    eventoCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    eventoCard.style.boxShadow = "0 0 20px var(--neon-green)";
-                    setTimeout(() => eventoCard.style.boxShadow = "none", 2000);
-                }
+                const card = document.querySelector(`.event-item[data-dataiso="${dataISO}"]`);
+                if (card) { card.style.display = 'flex'; card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
             };
-            
-            daysGrid.appendChild(cell);
+            grid.appendChild(cell);
         }
     }
-
-    function mudarMes(direcao) {
-        dataAtual.setMonth(dataAtual.getMonth() + direcao);
-        renderizarCalendario();
-    }
-
-    // Inicializa o calendário ao abrir a página
+    function mudarMes(dir) { dataAtual.setMonth(dataAtual.getMonth() + dir); renderizarCalendario(); }
     window.onload = renderizarCalendario;
 </script>
 {% endblock %}

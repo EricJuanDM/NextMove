@@ -1,57 +1,66 @@
 {% extends 'base.html' %}
-
-{% block title %}Gerenciar Agenda | Next Move{% endblock %}
+{% block title %}Admin Agenda | Next Move{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <style>
+        .coreo-entry { background: rgba(255,255,255,0.05); padding: 15px; border: 1px dashed #333; margin-bottom: 15px; position: relative; }
+        .btn-remove { position: absolute; top: 10px; right: 10px; color: var(--neon-red); cursor: pointer; font-size: 0.8rem; }
+        .section-divider { border-top: 1px dashed #333; margin: 40px 0; padding-top: 20px; }
+    </style>
 {% endblock %}
 
 {% block content %}
 <div class="auth-wrapper" style="flex-direction: column; gap: 30px; padding: 50px 20px;">
     
-    <div class="auth-box" style="border-top-color: var(--neon-green);">
+    <div class="auth-box" style="border-top-color: var(--neon-green); max-width: 800px;">
         <div class="auth-header">
-            <span class="system-status" style="color: var(--neon-green);">// AGENDA_UPDATE_PROTOCOL</span>
+            <span class="system-status" style="color: var(--neon-green);">// NEW_ENTRY_MODE</span>
             <h2>NOVO EVENTO</h2>
         </div>
         
         <form method="POST">
+            <input type="hidden" name="action" value="add">
             <label class="tech-label">NOME_DO_EVENTO</label>
-            <input type="text" name="evento_nome" placeholder="Ex: Batalha de Freestyle" required>
+            <input type="text" name="evento_nome" required>
 
             <label class="tech-label">DATA_EVENTO</label>
-            <input type="date" name="data_evento" required style="background: var(--bg-panel); color: var(--neon-green); border: 1px solid var(--border-dark); padding: 10px; width: 100%; font-family: 'Space Mono', monospace; margin-bottom: 20px;">
+            <input type="date" name="data_evento" required style="background: var(--bg-panel); color: #fff; border: 1px solid var(--border-dark); padding: 10px; width: 100%; margin-bottom: 20px;">
 
-            <label class="tech-label">TIPO_CATEGORIA</label>
-            <select name="tipo" style="width: 100%; background: #000; color: var(--neon-green); border: 1px solid var(--border-dark); padding: 12px; margin-bottom: 20px; font-family: 'Space Mono', monospace;">
-                <option value="BATALHA">BATALHA</option>
-                <option value="WORKSHOP">WORKSHOP</option>
-                <option value="COMPETIÇÃO">COMPETIÇÃO</option>
-                <option value="MEETUP">MEETUP</option>
-            </select>
-
-            <label class="tech-label">LOCAL_COORDENADAS</label>
-            <input type="text" name="local" placeholder="Ex: PUCPR - Bloco Amarelo">
-
-            <label class="tech-label">LINK_INSCRICAO (OPCIONAL)</label>
-            <input type="text" name="link" placeholder="https://..." style="margin-bottom: 20px;">
-
-            <label class="tech-label">TIPO_DE_MISSÃO</label>
-            <select name="origem_evento" onchange="toggleSubcategoria(this.value)" style="width: 100%; background: #000; color: var(--neon-green); border: 1px solid var(--border-dark); padding: 12px; margin-bottom: 20px; font-family: 'Space Mono', monospace; outline: none;">
-                <option value="PROPRIO">EVENTO DO GRUPO (HOST)</option>
-                <option value="PARTICIPACAO">PARTICIPAÇÃO EXTERNA (FESTIVAL)</option>
-            </select>
-
-            <div id="campo-subcategoria" style="display: none;">
-                <label class="tech-label">MODALIDADE_DA_APRESENTAÇÃO</label>
-                <select name="subcategoria_danca" style="width: 100%; background: #000; color: var(--neon-gold); border: 1px solid var(--border-dark); padding: 12px; margin-bottom: 20px; font-family: 'Space Mono', monospace; outline: none;">
-                    <option value="Solo">SOLO</option>
-                    <option value="Conjunto">CONJUNTO</option>
-                    <option value="Grupo Grande">GRUPO GRANDE</option>
-                </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label class="tech-label">TIPO</label>
+                    <select name="tipo" style="width: 100%; background: #000; color: #00a8ff; border: 1px solid var(--border-dark); padding: 12px; margin-bottom: 20px;">
+                        <option value="BATALHA">BATALHA</option>
+                        <option value="WORKSHOP">WORKSHOP</option>
+                        <option value="COMPETIÇÃO">COMPETIÇÃO</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="tech-label">MISSÃO</label>
+                    <select name="origem_evento" onchange="togglePart(this.value, 'add')" style="width: 100%; background: #000; color: var(--neon-green); border: 1px solid var(--border-dark); padding: 12px;">
+                        <option value="PROPRIO">HOST (NEXT MOVE)</option>
+                        <option value="PARTICIPACAO">PARTICIPAÇÃO EXTERNA</option>
+                    </select>
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-green btn-auth">PUBLICAR NA AGENDA</button>
+            <div id="secao-coreo-add" style="display: none; margin-top: 20px;">
+                <label class="tech-label" style="color: var(--neon-gold);">// COREOGRAFIAS</label>
+                <div id="container-add">
+                    <div class="coreo-entry">
+                        <input type="text" name="coreo_nome[]" placeholder="Nome da coreografia...">
+                        <select name="coreo_cat[]" style="width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 8px; margin-top: 5px;">
+                            <option value="Solo">SOLO</option><option value="Duo">DUO</option><option value="Trio">TRIO</option><option value="Conjunto">CONJUNTO</option><option value="Grupo Grande">GRUPO GRANDE</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn" style="border: 1px dashed var(--neon-gold); color: var(--neon-gold); width: 100%; margin-bottom: 20px;" onclick="addInput('container-add')">+ ADICIONAR MAIS UMA</button>
+            </div>
+
+            <label class="tech-label">LOCAL</label>
+            <input type="text" name="local">
+            <button type="submit" class="btn btn-green btn-auth">PUBLICAR EVENTO</button>
         </form>
     </div>
 
@@ -63,20 +72,90 @@
                 <td style="padding: 12px;">{{ ev[2].strftime('%d/%m/%Y') }}</td>
                 <td style="padding: 12px; color: #fff;">{{ ev[1] }}</td>
                 <td style="padding: 12px; text-align: right;">
-                    <a href="/admin/agenda/deletar/{{ ev[0] }}" onclick="return confirm('Deletar este evento?')" style="color: var(--neon-red); text-decoration: none;">[DELETAR]</a>
+                    <a href="/admin/agenda?edit_id={{ ev[0] }}#sessao-editar" style="color: #00a8ff; text-decoration: none; margin-right: 15px;">[EDITAR]</a>
+                    <a href="/admin/agenda/deletar/{{ ev[0] }}" onclick="return confirm('Deletar?')" style="color: var(--neon-red); text-decoration: none;">[DELETAR]</a>
                 </td>
             </tr>
             {% endfor %}
         </table>
     </div>
+
+    {% if edit_mode %}
+    <div id="sessao-editar" class="section-divider"></div>
+    <div class="auth-box" style="border-top-color: #00a8ff; max-width: 800px; background: rgba(0, 168, 255, 0.05);">
+        <div class="auth-header">
+            <span class="system-status" style="color: #00a8ff;">// EDIT_MODE_ACTIVE (ID: {{ edit_mode[0] }})</span>
+            <h2>EDITAR: {{ edit_mode[1] }}</h2>
+        </div>
+        
+        <form method="POST">
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="id_evento" value="{{ edit_mode[0] }}">
+            
+            <label class="tech-label">NOME_DO_EVENTO</label>
+            <input type="text" name="evento_nome" value="{{ edit_mode[1] }}" required>
+
+            <label class="tech-label">DATA_EVENTO</label>
+            <input type="date" name="data_evento" value="{{ edit_mode[2] }}" required style="background: var(--bg-panel); color: #fff; border: 1px solid var(--border-dark); padding: 10px; width: 100%; margin-bottom: 20px;">
+
+            <label class="tech-label">TIPO</label>
+            <select name="tipo" style="width: 100%; background: #000; color: #00a8ff; border: 1px solid var(--border-dark); padding: 12px; margin-bottom: 20px;">
+                <option value="BATALHA" {% if edit_mode[3]=='BATALHA' %}selected{% endif %}>BATALHA</option>
+                <option value="WORKSHOP" {% if edit_mode[3]=='WORKSHOP' %}selected{% endif %}>WORKSHOP</option>
+                <option value="COMPETIÇÃO" {% if edit_mode[3]=='COMPETIÇÃO' %}selected{% endif %}>COMPETIÇÃO</option>
+            </select>
+
+            <label class="tech-label">MISSÃO</label>
+            <select name="origem_evento" onchange="togglePart(this.value, 'edit')" style="width: 100%; background: #000; color: var(--neon-green); border: 1px solid var(--border-dark); padding: 12px; margin-bottom: 20px;">
+                <option value="PROPRIO" {% if edit_mode[6]=='PROPRIO' %}selected{% endif %}>HOST (NEXT MOVE)</option>
+                <option value="PARTICIPACAO" {% if edit_mode[6]=='PARTICIPACAO' %}selected{% endif %}>PARTICIPAÇÃO EXTERNA</option>
+            </select>
+
+            <div id="secao-coreo-edit" style="display: {% if edit_mode[6]=='PARTICIPACAO' %}block{% else %}none{% endif %};">
+                <div id="container-edit">
+                    {% for c in coreos_edit %}
+                    <div class="coreo-entry">
+                        <span class="btn-remove" onclick="this.parentElement.remove()">[REMOVER]</span>
+                        <input type="text" name="coreo_nome[]" value="{{ c[0] }}">
+                        <select name="coreo_cat[]" style="width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 8px; margin-top: 5px;">
+                            <option value="Solo" {% if c[1]=='Solo' %}selected{% endif %}>SOLO</option>
+                            <option value="Duo" {% if c[1]=='Duo' %}selected{% endif %}>DUO</option>
+                            <option value="Trio" {% if c[1]=='Trio' %}selected{% endif %}>TRIO</option>
+                            <option value="Conjunto" {% if c[1]=='Conjunto' %}selected{% endif %}>CONJUNTO</option>
+                            <option value="Grupo Grande" {% if c[1]=='Grupo Grande' %}selected{% endif %}>GRUPO GRANDE</option>
+                        </select>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn" style="border: 1px dashed var(--neon-gold); color: var(--neon-gold); width: 100%; margin-bottom: 20px;" onclick="addInput('container-edit')">+ ADICIONAR OUTRA</button>
+            </div>
+
+            <label class="tech-label">LOCAL</label>
+            <input type="text" name="local" value="{{ edit_mode[4] }}">
+            <button type="submit" class="btn btn-green btn-auth" style="border-color: #00a8ff; color: #00a8ff; box-shadow: 0 0 10px rgba(0, 168, 255, 0.2);">SALVAR ALTERAÇÕES</button>
+            <a href="/admin/agenda" style="display: block; text-align: center; margin-top: 15px; color: var(--text-muted); text-decoration: none;">[CANCELAR EDIÇÃO]</a>
+        </form>
+    </div>
+    {% endif %}
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Lógica para esconder/mostrar as opções de Solo, Conjunto e Grupo
-    function toggleSubcategoria(valor) {
-        document.getElementById('campo-subcategoria').style.display = (valor === 'PARTICIPACAO') ? 'block' : 'none';
+    function togglePart(v, mode) {
+        const id = (mode === 'add') ? 'secao-coreo-add' : 'secao-coreo-edit';
+        document.getElementById(id).style.display = (v === 'PARTICIPACAO') ? 'block' : 'none';
+    }
+    function addInput(containerId) {
+        const c = document.getElementById(containerId);
+        const div = document.createElement('div'); div.className = 'coreo-entry';
+        div.innerHTML = `<span class="btn-remove" onclick="this.parentElement.remove()">[REMOVER]</span>
+            <input type="text" name="coreo_nome[]" placeholder="Nome da coreografia...">
+            <select name="coreo_cat[]" style="width: 100%; background: #000; color: #fff; border: 1px solid #333; padding: 8px; margin-top: 5px;">
+                <option value="Solo">SOLO</option><option value="Duo">DUO</option><option value="Trio">TRIO</option><option value="Conjunto">CONJUNTO</option><option value="Grupo Grande">GRUPO GRANDE</option>
+            </select>`;
+        c.appendChild(div);
     }
 </script>
 {% endblock %}

@@ -6,35 +6,6 @@
 {% block content %}
 <body>
 
-    <!-- NAVBAR CYBER -->
-    <nav class="cyber-nav">
-        <a href="/" class="logo">NEXT<span>MOVE</span></a>
-        
-        <div class="menu-toggle" onclick="toggleMenu()">
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-
-        <div class="nav-links" id="navLinks">
-            <a href="/">Home</a>
-            <a href="/ranking_bolao">Ranking do Bolão</a>
-
-            {% if session.get('usuario_id') %}
-                <div class="user-profile">
-                    <div class="user-avatar" onclick="toggleDropdown()">
-                        {{ session.get('usuario_nome', 'U')[0] | upper }}
-                    </div>
-                    <div class="profile-dropdown" id="profileDropdown">
-                        <a href="/logout">// SAIR_SISTEMA</a>
-                    </div>
-                </div>
-            {% else %}
-                <a href="/login" class="btn btn-green">LOGIN</a>
-            {% endif %}
-        </div>
-    </nav>
-
     <div class="bolao-container">
         <div class="header" style="text-align: center; margin-bottom: 40px;">
             <h1>🔮 PROTOCOLO: BOLÃO</h1>
