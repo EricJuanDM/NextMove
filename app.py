@@ -49,7 +49,7 @@ def init_db():
     conn.close()
 
 # Cria as tabelas logo que o arquivo é lido
-init_db()
+
 
 @app.route('/')
 def home():
