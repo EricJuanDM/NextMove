@@ -73,3 +73,18 @@
     font-size: 1.1rem;
     letter-spacing: 3px;
 }
+
+/* ==========================================
+    AJUSTES PARA CELULAR (MOBILE) - LOGIN/CADASTRO
+   ========================================== */
+@media (max-width: 768px) {
+    .auth-header h2 {
+        font-size: 2.2rem; /* Diminui o tamanho da fonte no celular */
+        word-wrap: break-word; /* Impede que a palavra vaze da caixa */
+        overflow-wrap: break-word;
+    }
+    
+    .auth-box {
+        padding: 30px 20px; /* Dá um respiro um pouco menor nas laterais para aproveitar o espaço */
+    }
+}
