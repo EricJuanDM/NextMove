@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Meus Ingressos | Next Move{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wallet-container { max-width: 800px; margin: 40px auto; padding: 20px; }
+    .wallet-header { text-align: center; margin-bottom: 40px; }
+    
+    .tickets-list { display: flex; flex-direction: column; gap: 30px; }
+    
+    /* DESIGN DO TICKET CIBERNÉTICO */
+    .digital-ticket {
+        background: linear-gradient(135deg, #0d0d0d, #141414);
+        border: 1px solid var(--border-dark);
+        border-left: 5px solid var(--neon-green);
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    }
+    
+    @media (max-width: 600px) {
+        .digital-ticket { grid-template-columns: 1fr; border-left: none; border-top: 5px solid var(--neon-green); }
+        .ticket-stub { border-left: none !important; border-top: 1px dashed #333; padding: 20px !important; }
+    }
+
+    /* LADO ESQUERDO: INFOS DO INGRESSO */
+    .ticket-body { padding: 25px; display: flex; flex-direction: column; justify-content: space-between; gap: 15px; }
+    .ticket-title { font-family: 'Orbitron', sans-serif; color: #fff; font-size: 1.4rem; margin: 5px 0; }
+    
+    .status-indicator { display: inline-flex; align-items: center; gap: 8px; font-family: 'Space Mono', monospace; font-size: 0.75rem; text-transform: uppercase; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+    
+    /* LADO DIREITO: CÓDIGO DE BARRAS / CREDENCIAL */
+    .ticket-stub {
+        border-left: 1px dashed #222;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #080808;
+        text-align: center;
+    }
+    
+    /* Código de barras simulado em CSS pura */
+    .cyber-barcode {
+        width: 100px; height: 60px;
+        background: repeating-linear-gradient(90deg, #fff, #fff 2px, transparent 2px, transparent 7px);
+        opacity: 0.7; margin-bottom: 10px;
+    }
+    .cyber-barcode.scanned { opacity: 0.15; filter: grayscale(100%); }
+
+    /* Cores variantes de acordo com o tipo de ingresso */
+    .t-espectador { border-left-color: #00a8ff; }
+    .t-aula_1 { border-left-color: var(--neon-green); }
+    .t-aula_2 { border-left-color: var(--neon-green); }
+    .t-batalhas { border-left-color: var(--neon-red); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wallet-container">
+    
+    <div class="wallet-header">
+        <h1 style="color: #fff; font-family: 'Orbitron', sans-serif;">MINHA <span>CARTEIRA</span></h1>
+        <span style="color: var(--text-muted); font-family: 'Space Mono', monospace;">// CREDENCIAIS_DE_ACESSO_ATIVAS</span>
+    </div>
+
+    <div class="tickets-list">
+        {% if ingressos %}
+            {% for ing in ingressos %}
+                <div class="digital-ticket t-{{ ing[0] }}">
+                    
+                    <div class="ticket-body">
+                        <div>
+                            <span class="tech-label" style="color: var(--text-muted); margin: 0;">PASSAPORTE_ID: #2026{{ loop.index }}</span>
+                            
+                            <h2 class="ticket-title">
+                                {% if ing[0] == 'espectador' %}
+                                    ENTRADA GERAL (PÚBLICO)
+                                {% elif ing[0] == 'aula_1' %}
+                                    WORKSHOP: K-POP (ODUDA)
+                                {% elif ing[0] == 'aula_2' %}
+                                    WORKSHOP: LOCKING (DIOGO & LUIGI)
+                                {% elif ing[0] == 'batalhas' %}
+                                    INSCRIÇÃO: COMPETIDOR
+                                {% else %}
+                                    {{ ing[0] | upper }}
+                                {% endif %}
+                            </h2>
+                            
+                            <p style="color: var(--text-muted); font-size: 0.8rem; font-family: 'Space Mono'; margin-top: 5px;">
+                                DATA: 07/06/2026 | LOCAL: CURITIBA-PR
+                            </p>
+                        </div>
+
+                        <div>
+                            {% if ing[1] %} <div class="status-indicator" style="color: var(--neon-green);">
+                                    <div class="status-dot" style="background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green);"></div>
+                                    ACESSO CONCLUÍDO / DENTRO
+                                </div>
+                            {% else %}
+                                <div class="status-indicator" style="color: var(--neon-gold);">
+                                    <div class="status-dot" style="background: var(--neon-gold); box-shadow: 0 0 8px var(--neon-gold);"></div>
+                                    AGUARDANDO PORTARIA
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="ticket-stub">
+                        {% if ing[1] %}
+                            <div class="cyber-barcode scanned"></div>
+                            <span style="font-family: 'Orbitron'; font-size: 0.75rem; color: var(--text-muted);">[UTILIZADO]</span>
+                        {% else %}
+                            <div class="cyber-barcode"></div>
+                            <span style="font-family: 'Space Mono'; font-size: 0.7rem; color: #fff; letter-spacing: 1px;">NM-{{ ing[0][:3] | upper }}-{{ loop.index }}</span>
+                        {% endif %}
+                    </div>
+
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="cyber-card" style="text-align: center; padding: 40px 20px; border-left-color: var(--neon-red);">
+                <h3 style="color: var(--neon-red); margin-bottom: 10px;">NENHUM PROTOCOLO ENCONTRADO</h3>
+                <p style="font-family: 'Space Mono'; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px;">
+                    Você ainda não possui ingressos vinculados a esta conta de e-mail.
+                </p>
+                <a href="/ingressos" class="btn btn-green">ADQUIRIR CREDENCIAIS</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
