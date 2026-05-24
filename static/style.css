@@ -111,14 +111,14 @@ input[type="text"]:focus, input[type="password"]:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 40px;
-    background: rgba(0, 0, 0, 0.95); /* Fundo sólido para destacar o texto */
+    padding: 15px 5%; /* Ajusta melhor nas laterais */
+    background: rgba(0, 0, 0, 0.95);
     border-bottom: 2px solid var(--neon-green);
     box-shadow: 0 4px 15px var(--neon-green-dim);
-    position: sticky; /* Gruda no topo ao rolar a página */
+    position: sticky;
     top: 0;
-    z-index: 9999; /* Garante que fica na frente de qualquer outra coisa na tela */
-    flex-wrap: wrap; /* Não quebra em telas de celular */
+    z-index: 9999;
+    flex-wrap: nowrap; /* ISSO IMPEDE O MENU DE CAIR PARA A LINHA DE BAIXO */
     gap: 15px;
 }
 
@@ -237,6 +237,9 @@ input[type="text"]:focus, input[type="password"]:focus {
 @media (max-width: 768px) {
     .menu-toggle {
         display: flex; /* Aparece no celular */
+    }
+    .cyber-nav .logo {
+        font-size: 1.4rem; /* Diminui o logo pra não espremer o hambúrguer */
     }
 
     .nav-links {

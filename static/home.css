@@ -93,3 +93,18 @@
     margin-top: 50px;
     background: #000;
 }
+
+/* ==========================================
+    AJUSTES PARA CELULAR (MOBILE)
+   ========================================== */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.3rem; /* Reduz a fonte de 3.5rem para caber na tela */
+        word-wrap: break-word; /* Força a quebra se a palavra for muito grande */
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem; /* Ajusta o texto menor também */
+        padding: 0 10px;
+    }
+}
